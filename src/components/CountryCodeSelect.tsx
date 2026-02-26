@@ -11,12 +11,12 @@ export default function CountryCodeSelect({ value, onChange, className }: Props)
     <select
       value={value}
       onChange={e => onChange(e.target.value)}
-      className={`auth-input appearance-none bg-card ${className || ''}`}
+      className={`auth-input w-full appearance-none bg-card ${className || ''}`}
     >
-      <option value="">Code</option>
+      <option value="">Select country</option>
       {countries.map(c => (
         <option key={c.code} value={c.dialCode}>
-          {c.flag} {c.dialCode} {c.name}
+          {c.flag} {c.name}
         </option>
       ))}
     </select>

@@ -4,8 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginFormData } from '@/lib/validators';
 import { supabase } from '@/integrations/supabase/client';
-import AuthBrandPanel from '@/components/AuthBrandPanel';
-import { Eye, EyeOff, LogIn, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Loader2, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Login() {
@@ -31,7 +30,7 @@ export default function Login() {
       }
 
       toast.success('Welcome back!');
-      navigate('/dashboard');
+      navigate('/');
     } catch {
       toast.error('Something went wrong. Please try again.');
     } finally {
@@ -40,30 +39,38 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-container">
-      <AuthBrandPanel />
-      <div className="auth-panel">
-        <div className="auth-card animate-fade-in">
-          <div>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="w-full max-w-md space-y-6 animate-fade-in">
+        {/* Logo */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+            <Shield className="h-6 w-6 text-primary" />
+          </div>
+          <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">Welcome back</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-1 text-sm text-muted-foreground">
               Don't have an account?{' '}
               <Link to="/register" className="font-medium text-primary hover:underline">Sign up</Link>
             </p>
           </div>
+        </div>
 
+        {/* Form */}
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <input {...register('email')} type="email" placeholder="Email address" className="auth-input w-full" />
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Email</label>
+              <input {...register('email')} type="email" placeholder="john@example.com" className="auth-input w-full" />
               {errors.email && <p className="mt-1 text-xs text-destructive">{errors.email.message}</p>}
             </div>
 
             <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Password</label>
               <div className="relative">
                 <input
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Password"
+                  placeholder="Enter your password"
                   className="auth-input w-full pr-10"
                 />
                 <button

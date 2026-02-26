@@ -6,6 +6,50 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Build a JWT for Google OAuth2 using the service account credentials
+async function getAccessToken(): Promise<string> {
+  const privateKeyPem = Deno.env.get('private_key') || '';
+  const clientEmail = Deno.env.get('client_email') || '';
+  const tokenUri = Deno.env.get('token_uri') || 'https://oauth2.googleapis.com/token';
+
+  if (!privateKeyPem || !clientEmail) {
+    throw new Error('Firebase service account not configured');
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const claim = {
+    iss: clientEmail,
+    scope: 'https://www.googleapis.com/auth/firebase.messaging',
+    aud: tokenUri,
+    iat: now,
+    exp: now + 3600,
+  };
+
+  const enc = new TextEncoder();
+  const b64url = (data: Uint8Array) => btoa(String.fromCharCode(...data)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const headerB64 = b64url(enc.encode(JSON.stringify(header)));
+  const claimB64 = b64url(enc.encode(JSON.stringify(claim)));
+  const unsignedJwt = `${headerB64}.${claimB64}`;
+
+  // Import private key
+  const pemBody = privateKeyPem.replace(/-----BEGIN PRIVATE KEY-----/g, '').replace(/-----END PRIVATE KEY-----/g, '').replace(/\s/g, '');
+  const binaryKey = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0));
+  const key = await crypto.subtle.importKey('pkcs8', binaryKey, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+  const signature = new Uint8Array(await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, enc.encode(unsignedJwt)));
+  const jwt = `${unsignedJwt}.${b64url(signature)}`;
+
+  const resp = await fetch(tokenUri, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
+  });
+
+  const tokenData = await resp.json();
+  if (!tokenData.access_token) throw new Error('Failed to get access token');
+  return tokenData.access_token;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -15,12 +59,10 @@ serve(async (req) => {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ success: false, message: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Verify the caller is authenticated
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!,
@@ -30,8 +72,7 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return new Response(JSON.stringify({ success: false, message: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -40,12 +81,10 @@ serve(async (req) => {
 
     if (!targetUserId || !title || !message) {
       return new Response(JSON.stringify({ success: false, message: 'targetUserId, title, and message are required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Get target user's FCM token
     const adminClient = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -59,46 +98,45 @@ serve(async (req) => {
 
     if (profileError || !profile?.fcm_token) {
       return new Response(JSON.stringify({ success: false, message: 'User has no FCM token registered' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Send FCM notification using Firebase REST API
-    const firebaseServiceAccount = JSON.parse(Deno.env.get('FIREBASE_SERVICE_ACCOUNT') || '{}');
-    
-    if (!firebaseServiceAccount.project_id) {
-      return new Response(JSON.stringify({ success: false, message: 'Firebase not configured' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    // Get access token and send FCM message
+    const accessToken = await getAccessToken();
+    const projectId = Deno.env.get('project_id') || '';
+
+    const fcmResponse = await fetch(
+      `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: {
+            token: profile.fcm_token,
+            notification: { title, body: message },
+          },
+        }),
+      }
+    );
+
+    const fcmResult = await fcmResponse.json();
+
+    if (!fcmResponse.ok) {
+      return new Response(JSON.stringify({ success: false, message: 'FCM send failed', details: fcmResult }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Get OAuth2 token for Firebase
-    const jwtHeader = btoa(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
-    const now = Math.floor(Date.now() / 1000);
-    const jwtClaim = btoa(JSON.stringify({
-      iss: firebaseServiceAccount.client_email,
-      scope: 'https://www.googleapis.com/auth/firebase.messaging',
-      aud: 'https://oauth2.googleapis.com/token',
-      iat: now,
-      exp: now + 3600,
-    }));
-
-    // For a full production implementation, you'd sign the JWT with the private key
-    // and exchange it for an access token. For now, return info about the setup needed.
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: 'Notification endpoint ready. Configure FIREBASE_SERVICE_ACCOUNT secret to enable sending.',
-      targetFcmToken: profile.fcm_token ? 'found' : 'missing',
-    }), {
+    return new Response(JSON.stringify({ success: true, message: 'Notification sent', data: fcmResult }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ success: false, message: 'Internal server error' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify({ success: false, message: err.message || 'Internal server error' }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
