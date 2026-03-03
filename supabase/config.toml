@@ -1,7 +1,1 @@
 project_id = "ciywuwcwixbvmsezppya"
-
-[functions.update-profile]
-verify_jwt = false
-
-[functions.send-notification]
-verify_jwt = false
