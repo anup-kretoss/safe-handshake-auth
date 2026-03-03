@@ -1,1 +1,16 @@
 project_id = "ciywuwcwixbvmsezppya"
+
+[functions.update-profile]
+verify_jwt = false
+
+[functions.send-notification]
+verify_jwt = false
+
+[functions.send-otp]
+verify_jwt = false
+
+[functions.verify-otp]
+verify_jwt = false
+
+[functions.reset-password-otp]
+verify_jwt = false

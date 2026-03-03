@@ -29,7 +29,7 @@ export default function Register() {
         email: data.email,
         password: data.password,
         options: {
-          emailRedirectTo: window.location.origin,
+          // No email redirect - user can login immediately
           data: {
             first_name: data.firstName,
             last_name: data.lastName,
@@ -52,7 +52,7 @@ export default function Register() {
         }).eq('user_id', sessionData.session.user.id);
       }
 
-      toast.success('Account created! Check your email to confirm.');
+      toast.success('Account created successfully! You can now login.');
       navigate('/login');
     } catch {
       toast.error('Something went wrong. Please try again.');
