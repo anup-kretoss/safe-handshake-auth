@@ -25,7 +25,6 @@ serve(async (req) => {
 
     const { email } = body;
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return new Response(JSON.stringify({ 
@@ -65,7 +64,7 @@ serve(async (req) => {
       });
     }
 
-    // Check if there's an existing OTP sent within the last 30 seconds (cooldown)
+    // Enforce 30-second cooldown
     const { data: existingOtp } = await adminClient
       .from('password_reset_otps')
       .select('created_at')
@@ -82,7 +81,7 @@ serve(async (req) => {
         const waitSeconds = Math.ceil(30 - diffSeconds);
         return new Response(JSON.stringify({ 
           success: false, 
-          message: `Please wait ${waitSeconds} seconds before requesting a new OTP`,
+          message: `Please wait ${waitSeconds} seconds before resending OTP`,
           error_code: 'COOLDOWN_ACTIVE',
           wait_seconds: waitSeconds
         }), {
@@ -91,7 +90,7 @@ serve(async (req) => {
       }
     }
 
-    // Generate 4-digit OTP
+    // Generate new 4-digit OTP
     const otp = String(Math.floor(1000 + Math.random() * 9000));
 
     // Delete old OTPs for this email
@@ -114,21 +113,20 @@ serve(async (req) => {
       });
     }
 
-    // Send recovery email via Supabase Auth (this sends the built-in recovery email)
-    // We use this just to trigger an email - the user will use our custom OTP instead
+    // Send recovery email
     try {
       await adminClient.auth.admin.generateLink({
         type: 'recovery',
         email,
       });
     } catch {
-      // Email sending failed but OTP is still stored - continue
+      // Continue even if email fails
     }
 
     return new Response(JSON.stringify({ 
       success: true, 
-      message: 'OTP has been sent to your email',
-      otp, // Always return OTP in response for Postman/API testing
+      message: 'OTP has been resent to your email',
+      otp, // Return OTP in response for testing
       expires_in_minutes: 10,
     }), {
       status: 200,
