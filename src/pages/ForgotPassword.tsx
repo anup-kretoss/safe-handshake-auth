@@ -61,8 +61,20 @@ export default function ForgotPassword() {
 
   const onResend = async () => {
     if (resendCooldown > 0) return;
-    const sent = await sendOtp(email);
-    if (sent) setResendCooldown(30);
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('resend-otp', {
+        body: { email },
+      });
+      if (error) { toast.error('Failed to resend OTP'); return; }
+      if (!data.success) { toast.error(data.message); return; }
+      toast.success('OTP resent to your email!');
+      setResendCooldown(30);
+    } catch {
+      toast.error('Something went wrong.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onVerifyOtp = async () => {
