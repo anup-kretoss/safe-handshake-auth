@@ -33,6 +33,9 @@ export default function Register() {
           data: {
             first_name: data.firstName,
             last_name: data.lastName,
+            date_of_birth: data.dateOfBirth,
+            country_code: data.countryCode,
+            phone_number: data.phoneNumber,
           },
         },
       });
@@ -40,20 +43,6 @@ export default function Register() {
       if (error) {
         toast.error(error.message);
         return;
-      }
-
-      // Update profile with extra fields (only if provided)
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (sessionData.session?.user) {
-        const profileUpdate: Record<string, string> = {};
-        if (data.dateOfBirth) profileUpdate.date_of_birth = data.dateOfBirth;
-        if (data.countryCode) profileUpdate.country_code = data.countryCode;
-        if (data.phoneNumber) profileUpdate.phone_number = data.phoneNumber;
-        
-        if (Object.keys(profileUpdate).length > 0) {
-          await supabase.from('profiles').update(profileUpdate)
-            .eq('user_id', sessionData.session.user.id);
-        }
       }
 
       toast.success('Account created successfully! You can now login.');
