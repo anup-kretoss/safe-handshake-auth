@@ -43,41 +43,41 @@ export type Database = {
       }
       profiles: {
         Row: {
-          country_code: string | null
+          country_code: string
           created_at: string
-          date_of_birth: string | null
+          date_of_birth: string
           email: string
           fcm_token: string | null
           first_name: string
           id: string
           last_name: string
-          phone_number: string | null
+          phone_number: string
           updated_at: string
           user_id: string
         }
         Insert: {
-          country_code?: string | null
+          country_code: string
           created_at?: string
-          date_of_birth?: string | null
+          date_of_birth: string
           email: string
           fcm_token?: string | null
           first_name: string
           id?: string
           last_name: string
-          phone_number?: string | null
+          phone_number: string
           updated_at?: string
           user_id: string
         }
         Update: {
-          country_code?: string | null
+          country_code?: string
           created_at?: string
-          date_of_birth?: string | null
+          date_of_birth?: string
           email?: string
           fcm_token?: string | null
           first_name?: string
           id?: string
           last_name?: string
-          phone_number?: string | null
+          phone_number?: string
           updated_at?: string
           user_id?: string
         }
