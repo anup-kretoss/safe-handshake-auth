@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.resend-otp]
 verify_jwt = false
+
+[functions.signup]
+verify_jwt = false
