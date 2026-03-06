@@ -24,7 +24,28 @@ serve(async (req) => {
       });
     }
 
-    const { email, password, first_name, last_name, date_of_birth, country_code, phone_number } = body;
+    const { email, password, first_name, last_name, full_name, date_of_birth, country_code, phone_number } = body;
+
+    // Support both first_name/last_name and full_name
+    let resolvedFirstName = first_name;
+    let resolvedLastName = last_name;
+    if (!resolvedFirstName && !resolvedLastName && full_name) {
+      const parts = full_name.trim().split(/\s+/);
+      resolvedFirstName = parts[0] || '';
+      resolvedLastName = parts.slice(1).join(' ') || '';
+    }
+
+    // Normalize date_of_birth: accept DD/MM/YYYY, MM/DD/YYYY, or YYYY-MM-DD
+    let normalizedDob = date_of_birth;
+    if (date_of_birth && typeof date_of_birth === 'string') {
+      const trimmed = date_of_birth.trim();
+      // Convert DD/MM/YYYY or MM/DD/YYYY to YYYY-MM-DD
+      const slashMatch = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (slashMatch) {
+        // Assume DD/MM/YYYY
+        normalizedDob = `${slashMatch[3]}-${slashMatch[2]}-${slashMatch[1]}`;
+      }
+    }
 
     // Validate required fields
     const errors: { field: string; message: string }[] = [];
@@ -44,21 +65,20 @@ serve(async (req) => {
       errors.push({ field: 'password', message: 'Password must be at least 8 characters' });
     }
 
-    if (!first_name || typeof first_name !== 'string' || first_name.trim() === '') {
+    if (!resolvedFirstName || typeof resolvedFirstName !== 'string' || resolvedFirstName.trim() === '') {
       errors.push({ field: 'first_name', message: 'First name is required' });
     }
 
-    if (!last_name || typeof last_name !== 'string' || last_name.trim() === '') {
+    if (!resolvedLastName || typeof resolvedLastName !== 'string' || resolvedLastName.trim() === '') {
       errors.push({ field: 'last_name', message: 'Last name is required' });
     }
 
-    if (!date_of_birth || typeof date_of_birth !== 'string' || date_of_birth.trim() === '') {
+    if (!normalizedDob || typeof normalizedDob !== 'string' || normalizedDob.trim() === '') {
       errors.push({ field: 'date_of_birth', message: 'Date of birth is required' });
     } else {
-      // Validate date format (YYYY-MM-DD)
       const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!dateRegex.test(date_of_birth.trim())) {
-        errors.push({ field: 'date_of_birth', message: 'Date of birth must be in YYYY-MM-DD format' });
+      if (!dateRegex.test(normalizedDob.trim())) {
+        errors.push({ field: 'date_of_birth', message: 'Date of birth must be in YYYY-MM-DD format (or DD/MM/YYYY)' });
       }
     }
 
@@ -125,9 +145,9 @@ serve(async (req) => {
       password: password,
       email_confirm: true,
       user_metadata: {
-        first_name: first_name.trim(),
-        last_name: last_name.trim(),
-        date_of_birth: date_of_birth.trim(),
+        first_name: resolvedFirstName.trim(),
+        last_name: resolvedLastName.trim(),
+        date_of_birth: normalizedDob.trim(),
         country_code: country_code.trim(),
         phone_number: phone_number.trim(),
       },
@@ -160,9 +180,9 @@ serve(async (req) => {
       user: {
         id: newUser.user.id,
         email: newUser.user.email,
-        first_name: first_name.trim(),
-        last_name: last_name.trim(),
-        date_of_birth: date_of_birth.trim(),
+        first_name: resolvedFirstName.trim(),
+        last_name: resolvedLastName.trim(),
+        date_of_birth: normalizedDob.trim(),
         country_code: country_code.trim(),
         phone_number: phone_number.trim(),
       },
