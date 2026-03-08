@@ -12,6 +12,7 @@ interface Profile {
   phone_number: string | null;
   country_code: string | null;
   fcm_token: string | null;
+  gender: string | null;
   created_at: string;
   updated_at: string;
 }

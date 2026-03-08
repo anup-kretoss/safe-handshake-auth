@@ -23,6 +23,7 @@ export default function ProfileDropdown() {
       dateOfBirth: profile?.date_of_birth || '',
       countryCode: profile?.country_code || '',
       phoneNumber: profile?.phone_number || '',
+      gender: profile?.gender || '',
     },
   });
 

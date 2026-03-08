@@ -10,7 +10,12 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import Dashboard from "./pages/Dashboard";
+import HomePage from "./pages/HomePage";
+import SearchPage from "./pages/SearchPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
+import SellItemPage from "./pages/SellItemPage";
+import WishlistPage from "./pages/WishlistPage";
+import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,9 +34,20 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
+              <ProtectedRoute><HomePage /></ProtectedRoute>
+            } />
+            <Route path="/search" element={
+              <ProtectedRoute><SearchPage /></ProtectedRoute>
+            } />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
+            <Route path="/sell" element={
+              <ProtectedRoute><SellItemPage /></ProtectedRoute>
+            } />
+            <Route path="/wishlist" element={
+              <ProtectedRoute><WishlistPage /></ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute><ProfilePage /></ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>
