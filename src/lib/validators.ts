@@ -45,6 +45,7 @@ export const updateProfileSchema = z.object({
   dateOfBirth: z.string().optional(),
   countryCode: z.string().optional(),
   phoneNumber: z.string().max(20).optional(),
+  gender: z.string().optional(),
 });
 
 export type RegisterFormData = z.infer<typeof registerSchema>;

@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
 };
 
 serve(async (req) => {
@@ -23,7 +23,7 @@ serve(async (req) => {
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!,
+      Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!,
       { global: { headers: { Authorization: authHeader } } }
     );
 
@@ -35,18 +35,6 @@ serve(async (req) => {
       });
     }
 
-    const body = await req.json();
-    const { firstName, lastName, dateOfBirth, countryCode, phoneNumber, gender, fcmToken } = body;
-
-    const updateData: Record<string, unknown> = {};
-    if (firstName !== undefined) updateData.first_name = firstName;
-    if (lastName !== undefined) updateData.last_name = lastName;
-    if (dateOfBirth !== undefined) updateData.date_of_birth = dateOfBirth;
-    if (countryCode !== undefined) updateData.country_code = countryCode;
-    if (phoneNumber !== undefined) updateData.phone_number = phoneNumber;
-    if (gender !== undefined) updateData.gender = gender;
-    if (fcmToken !== undefined) updateData.fcm_token = fcmToken;
-
     const adminClient = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -54,9 +42,8 @@ serve(async (req) => {
 
     const { data, error } = await adminClient
       .from('profiles')
-      .update(updateData)
+      .select('*')
       .eq('user_id', user.id)
-      .select()
       .single();
 
     if (error) {
@@ -66,7 +53,21 @@ serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ success: true, data }), {
+    return new Response(JSON.stringify({
+      success: true,
+      data: {
+        firstName: data.first_name,
+        lastName: data.last_name,
+        email: data.email,
+        dateOfBirth: data.date_of_birth,
+        countryCode: data.country_code,
+        phoneNumber: data.phone_number,
+        gender: data.gender,
+        fcmToken: data.fcm_token,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+      }
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
