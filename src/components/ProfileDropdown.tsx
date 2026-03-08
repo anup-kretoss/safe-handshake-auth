@@ -48,6 +48,7 @@ export default function ProfileDropdown() {
         date_of_birth: data.dateOfBirth || null,
         country_code: data.countryCode || null,
         phone_number: data.phoneNumber || null,
+        gender: data.gender || null,
       }).eq('user_id', user.id);
 
       if (error) {
