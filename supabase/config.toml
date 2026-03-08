@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.wishlist]
 verify_jwt = false
+
+[functions.get-profile]
+verify_jwt = false
