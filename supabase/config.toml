@@ -20,3 +20,9 @@ verify_jwt = false
 
 [functions.signup]
 verify_jwt = false
+
+[functions.products]
+verify_jwt = false
+
+[functions.wishlist]
+verify_jwt = false

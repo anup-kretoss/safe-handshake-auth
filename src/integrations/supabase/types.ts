@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       password_reset_otps: {
         Row: {
           created_at: string
@@ -41,6 +59,78 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          brand: string | null
+          category_id: string
+          color: string | null
+          condition: string | null
+          created_at: string
+          description: string | null
+          id: string
+          images: string[] | null
+          is_sold: boolean
+          location: string | null
+          price: number
+          seller_id: string
+          size: string | null
+          sub_category_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          brand?: string | null
+          category_id: string
+          color?: string | null
+          condition?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_sold?: boolean
+          location?: string | null
+          price: number
+          seller_id: string
+          size?: string | null
+          sub_category_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          brand?: string | null
+          category_id?: string
+          color?: string | null
+          condition?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_sold?: boolean
+          location?: string | null
+          price?: number
+          seller_id?: string
+          size?: string | null
+          sub_category_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_sub_category_id_fkey"
+            columns: ["sub_category_id"]
+            isOneToOne: false
+            referencedRelation: "sub_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           country_code: string
@@ -49,6 +139,7 @@ export type Database = {
           email: string
           fcm_token: string | null
           first_name: string
+          gender: string | null
           id: string
           last_name: string
           phone_number: string
@@ -62,6 +153,7 @@ export type Database = {
           email: string
           fcm_token?: string | null
           first_name: string
+          gender?: string | null
           id?: string
           last_name: string
           phone_number: string
@@ -75,6 +167,7 @@ export type Database = {
           email?: string
           fcm_token?: string | null
           first_name?: string
+          gender?: string | null
           id?: string
           last_name?: string
           phone_number?: string
@@ -82,6 +175,64 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      sub_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wishlist: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
