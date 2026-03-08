@@ -115,7 +115,16 @@ export default function ProfileDropdown() {
                   <div className="col-span-3">
                     <input {...register('phoneNumber')} type="tel" placeholder="Phone" className="auth-input w-full h-9 text-xs" />
                   </div>
-                </div>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Gender</label>
+                <select {...register('gender')} className="auth-input w-full h-9 text-xs bg-card">
+                  <option value="">Select</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
               </div>
               <button type="submit" disabled={saving} className="auth-btn h-9 flex items-center justify-center gap-2 text-xs">
                 {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
