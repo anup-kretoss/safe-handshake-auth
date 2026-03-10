@@ -27,10 +27,10 @@ export function useProducts(filters?: Parameters<typeof fetchProducts>[0]) {
   });
 }
 
-export function useSearchProducts(query: string) {
+export function useSearchProducts(query: string, filters?: Parameters<typeof fetchProducts>[0]) {
   return useQuery({
-    queryKey: ['products', 'search', query],
-    queryFn: () => searchProducts(query),
+    queryKey: ['products', 'search', query, filters],
+    queryFn: () => fetchProducts({ ...filters, q: query }),
     enabled: query.length > 0,
     staleTime: 15000,
   });

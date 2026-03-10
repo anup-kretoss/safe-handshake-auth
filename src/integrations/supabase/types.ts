@@ -71,6 +71,7 @@ export type Database = {
           images: string[] | null
           is_sold: boolean
           location: string | null
+          material: string | null
           price: number
           seller_id: string
           size: string | null
@@ -89,6 +90,7 @@ export type Database = {
           images?: string[] | null
           is_sold?: boolean
           location?: string | null
+          material?: string | null
           price: number
           seller_id: string
           size?: string | null
@@ -107,6 +109,7 @@ export type Database = {
           images?: string[] | null
           is_sold?: boolean
           location?: string | null
+          material?: string | null
           price?: number
           seller_id?: string
           size?: string | null
@@ -180,18 +183,21 @@ export type Database = {
         Row: {
           category_id: string
           created_at: string
+          group_name: string | null
           id: string
           name: string
         }
         Insert: {
           category_id: string
           created_at?: string
+          group_name?: string | null
           id?: string
           name: string
         }
         Update: {
           category_id?: string
           created_at?: string
+          group_name?: string | null
           id?: string
           name?: string
         }

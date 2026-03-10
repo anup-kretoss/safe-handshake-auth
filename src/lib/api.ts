@@ -23,12 +23,13 @@ export interface Product {
   size: string;
   color: string;
   brand: string;
+  material: string;
   location: string;
   is_sold: boolean;
   created_at: string;
   updated_at: string;
   categories?: { name: string };
-  sub_categories?: { name: string };
+  sub_categories?: { name: string; group_name?: string };
 }
 
 export interface Category {
@@ -41,6 +42,7 @@ export interface SubCategory {
   id: string;
   name: string;
   category_id: string;
+  group_name: string;
   created_at: string;
 }
 
@@ -67,6 +69,8 @@ export async function fetchProducts(filters?: {
   min_price?: string;
   max_price?: string;
   condition?: string;
+  size?: string;
+  brand?: string;
   seller_id?: string;
   limit?: number;
   offset?: number;
@@ -110,6 +114,7 @@ export async function createProduct(product: {
   size?: string;
   color?: string;
   brand?: string;
+  material?: string;
   location?: string;
 }): Promise<Product> {
   const headers = await getAuthHeaders();
