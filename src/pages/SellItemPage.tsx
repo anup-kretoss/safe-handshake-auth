@@ -4,12 +4,26 @@ import { useCategories, useSubCategories, useCreateProduct } from '@/hooks/useAp
 import { ArrowLeft, ImagePlus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+const CONDITIONS = [
+  { value: 'new', label: 'New' },
+  { value: 'good', label: 'Good' },
+  { value: 'worn', label: 'Worn' },
+];
+
 export default function SellItemPage() {
   const navigate = useNavigate();
   const { data: categories = [] } = useCategories();
   const [categoryId, setCategoryId] = useState('');
   const { data: subCategories = [] } = useSubCategories(categoryId || undefined);
   const createProduct = useCreateProduct();
+
+  // Group sub-categories by group_name
+  const groupedSubs = subCategories.reduce((acc, sc) => {
+    const group = sc.group_name || '';
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(sc);
+    return acc;
+  }, {} as Record<string, typeof subCategories>);
 
   const [form, setForm] = useState({
     title: '',
@@ -21,6 +35,7 @@ export default function SellItemPage() {
     size: '',
     color: '',
     brand: '',
+    material: '',
     location: '',
     images: [] as string[],
   });
@@ -70,32 +85,19 @@ export default function SellItemPage() {
           </button>
         </div>
 
+        {/* Title */}
         <div>
           <label className="block text-xs font-medium text-muted-foreground mb-1">Title *</label>
           <input name="title" value={form.title} onChange={handleChange} placeholder="What are you selling?" className="auth-input w-full" />
         </div>
 
+        {/* Description */}
         <div>
           <label className="block text-xs font-medium text-muted-foreground mb-1">Description</label>
           <textarea name="description" value={form.description} onChange={handleChange} placeholder="Describe your item..." rows={3} className="auth-input w-full resize-none pt-3" />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Price *</label>
-            <input name="price" type="number" value={form.price} onChange={handleChange} placeholder="0.00" className="auth-input w-full" />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Condition</label>
-            <select name="condition" value={form.condition} onChange={handleChange} className="auth-input w-full bg-card">
-              <option value="new">New</option>
-              <option value="like_new">Like New</option>
-              <option value="good">Good</option>
-              <option value="fair">Fair</option>
-            </select>
-          </div>
-        </div>
-
+        {/* Category */}
         <div>
           <label className="block text-xs font-medium text-muted-foreground mb-1">Category *</label>
           <select
@@ -110,18 +112,46 @@ export default function SellItemPage() {
           </select>
         </div>
 
+        {/* Sub Category (grouped) */}
         {subCategories.length > 0 && (
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1">Sub Category</label>
             <select name="sub_category_id" value={form.sub_category_id} onChange={handleChange} className="auth-input w-full bg-card">
               <option value="">Select Sub Category</option>
-              {subCategories.map(sc => (
-                <option key={sc.id} value={sc.id}>{sc.name}</option>
+              {Object.entries(groupedSubs).map(([group, subs]) => (
+                group ? (
+                  <optgroup key={group} label={group}>
+                    {subs.map(sc => (
+                      <option key={sc.id} value={sc.id}>{sc.name}</option>
+                    ))}
+                  </optgroup>
+                ) : (
+                  subs.map(sc => (
+                    <option key={sc.id} value={sc.id}>{sc.name}</option>
+                  ))
+                )
               ))}
             </select>
           </div>
         )}
 
+        {/* Price & Condition */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">Price *</label>
+            <input name="price" type="number" value={form.price} onChange={handleChange} placeholder="0.00" className="auth-input w-full" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">Condition</label>
+            <select name="condition" value={form.condition} onChange={handleChange} className="auth-input w-full bg-card">
+              {CONDITIONS.map(c => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Size & Color */}
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1">Size</label>
@@ -133,15 +163,22 @@ export default function SellItemPage() {
           </div>
         </div>
 
+        {/* Brand & Material */}
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1">Brand</label>
             <input name="brand" value={form.brand} onChange={handleChange} placeholder="Nike, Zara..." className="auth-input w-full" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Location</label>
-            <input name="location" value={form.location} onChange={handleChange} placeholder="City..." className="auth-input w-full" />
+            <label className="block text-xs font-medium text-muted-foreground mb-1">Material</label>
+            <input name="material" value={form.material} onChange={handleChange} placeholder="Cotton, Silk..." className="auth-input w-full" />
           </div>
+        </div>
+
+        {/* Location */}
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground mb-1">Location</label>
+          <input name="location" value={form.location} onChange={handleChange} placeholder="City..." className="auth-input w-full" />
         </div>
 
         <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3">

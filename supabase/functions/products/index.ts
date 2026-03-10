@@ -20,7 +20,6 @@ serve(async (req) => {
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!;
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-    // Public client for reads
     const publicClient = createClient(supabaseUrl, supabaseAnonKey);
 
     // ---- GET CATEGORIES ----
@@ -32,10 +31,10 @@ serve(async (req) => {
       return json({ success: true, data });
     }
 
-    // ---- GET SUB CATEGORIES ----
+    // ---- GET SUB CATEGORIES (with group_name) ----
     if (action === 'sub_categories') {
       const categoryId = url.searchParams.get('category_id');
-      let query = publicClient.from('sub_categories').select('id, name, category_id, created_at');
+      let query = publicClient.from('sub_categories').select('id, name, category_id, group_name, created_at');
       if (categoryId) query = query.eq('category_id', categoryId);
       const { data, error } = await query;
       if (error) throw error;
@@ -50,13 +49,15 @@ serve(async (req) => {
       const minPrice = url.searchParams.get('min_price');
       const maxPrice = url.searchParams.get('max_price');
       const condition = url.searchParams.get('condition');
+      const size = url.searchParams.get('size');
+      const brand = url.searchParams.get('brand');
       const sellerId = url.searchParams.get('seller_id');
       const limit = parseInt(url.searchParams.get('limit') || '20');
       const offset = parseInt(url.searchParams.get('offset') || '0');
 
       let query = publicClient
         .from('products')
-        .select('*, categories(name), sub_categories(name)')
+        .select('*, categories(name), sub_categories(name, group_name)')
         .eq('is_sold', false)
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
@@ -67,6 +68,8 @@ serve(async (req) => {
       if (minPrice) query = query.gte('price', parseFloat(minPrice));
       if (maxPrice) query = query.lte('price', parseFloat(maxPrice));
       if (condition) query = query.eq('condition', condition);
+      if (size) query = query.ilike('size', `%${size}%`);
+      if (brand) query = query.ilike('brand', `%${brand}%`);
       if (sellerId) query = query.eq('seller_id', sellerId);
 
       const { data, error, count } = await query;
@@ -81,7 +84,7 @@ serve(async (req) => {
 
       const { data, error } = await publicClient
         .from('products')
-        .select('*, categories(name), sub_categories(name)')
+        .select('*, categories(name), sub_categories(name, group_name)')
         .eq('id', productId)
         .single();
       if (error) throw error;
@@ -102,7 +105,7 @@ serve(async (req) => {
       if (authError || !user) return json({ success: false, message: 'Unauthorized' }, 401);
 
       const body = await req.json();
-      const { title, description, price, images, category_id, sub_category_id, condition, size, color, brand, location } = body;
+      const { title, description, price, images, category_id, sub_category_id, condition, size, color, brand, material, location } = body;
 
       if (!title || !price || !category_id) {
         return json({ success: false, message: 'title, price, and category_id are required' }, 400);
@@ -123,6 +126,7 @@ serve(async (req) => {
           size: size || '',
           color: color || '',
           brand: brand || '',
+          material: material || '',
           location: location || '',
         })
         .select()
@@ -150,8 +154,6 @@ serve(async (req) => {
       if (!id) return json({ success: false, message: 'Product id is required' }, 400);
 
       const adminClient = createClient(supabaseUrl, serviceRoleKey);
-
-      // Verify ownership
       const { data: existing } = await adminClient.from('products').select('seller_id').eq('id', id).single();
       if (!existing || existing.seller_id !== user.id) {
         return json({ success: false, message: 'Not authorized to update this product' }, 403);
@@ -186,7 +188,6 @@ serve(async (req) => {
       if (!id) return json({ success: false, message: 'Product id is required' }, 400);
 
       const adminClient = createClient(supabaseUrl, serviceRoleKey);
-
       const { data: existing } = await adminClient.from('products').select('seller_id').eq('id', id).single();
       if (!existing || existing.seller_id !== user.id) {
         return json({ success: false, message: 'Not authorized to delete this product' }, 403);

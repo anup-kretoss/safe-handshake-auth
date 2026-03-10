@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useProductDetail, useCheckWishlist, useAddToWishlist, useRemoveFromWishlist } from '@/hooks/useApi';
 import { useAuth } from '@/context/AuthContext';
-import { ArrowLeft, Heart, Share2, MapPin, Tag } from 'lucide-react';
+import { ArrowLeft, Heart, Share2, MapPin, Tag, Ruler, Palette, Package, Layers } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ProductDetailPage() {
@@ -49,8 +49,17 @@ export default function ProductDetailPage() {
     );
   }
 
+  const details = [
+    { icon: Tag, label: 'Condition', value: product.condition },
+    { icon: Ruler, label: 'Size', value: product.size },
+    { icon: Palette, label: 'Color', value: product.color },
+    { icon: Package, label: 'Brand', value: product.brand },
+    { icon: Layers, label: 'Material', value: product.material },
+    { icon: MapPin, label: 'Location', value: product.location },
+  ].filter(d => d.value);
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       {/* Image */}
       <div className="relative aspect-square bg-secondary">
         {product.images && product.images.length > 0 ? (
@@ -76,7 +85,8 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Details */}
-      <div className="px-4 py-5 space-y-4">
+      <div className="px-4 py-5 space-y-5">
+        {/* Title & Price */}
         <div>
           <div className="flex items-start justify-between gap-3">
             <h1 className="text-xl font-bold text-foreground">{product.title}</h1>
@@ -90,40 +100,27 @@ export default function ProductDetailPage() {
             )}
             {product.sub_categories?.name && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground font-medium">
+                {product.sub_categories.group_name ? `${product.sub_categories.group_name} · ` : ''}
                 {product.sub_categories.name}
               </span>
             )}
           </div>
         </div>
 
-        {/* Info chips */}
-        <div className="flex flex-wrap gap-2">
-          {product.condition && (
-            <span className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-secondary text-foreground">
-              <Tag className="h-3 w-3" /> {product.condition}
-            </span>
-          )}
-          {product.size && (
-            <span className="text-xs px-3 py-1.5 rounded-lg bg-secondary text-foreground">
-              Size: {product.size}
-            </span>
-          )}
-          {product.color && (
-            <span className="text-xs px-3 py-1.5 rounded-lg bg-secondary text-foreground">
-              Color: {product.color}
-            </span>
-          )}
-          {product.brand && (
-            <span className="text-xs px-3 py-1.5 rounded-lg bg-secondary text-foreground">
-              {product.brand}
-            </span>
-          )}
-          {product.location && (
-            <span className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-secondary text-foreground">
-              <MapPin className="h-3 w-3" /> {product.location}
-            </span>
-          )}
-        </div>
+        {/* Product Details Grid */}
+        {details.length > 0 && (
+          <div className="grid grid-cols-2 gap-2">
+            {details.map((d) => (
+              <div key={d.label} className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-secondary">
+                <d.icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[10px] text-muted-foreground">{d.label}</p>
+                  <p className="text-xs font-medium text-foreground capitalize truncate">{d.value}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Description */}
         {product.description && (
