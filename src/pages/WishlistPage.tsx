@@ -1,16 +1,16 @@
 import { Link } from 'react-router-dom';
-import { useWishlist, useRemoveFromWishlist } from '@/hooks/useApi';
+import { useWishlist, useToggleWishlist } from '@/hooks/useApi';
 import { ArrowLeft, Heart, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import BottomNav from '@/components/BottomNav';
 
 export default function WishlistPage() {
   const { data: wishlistItems = [], isLoading } = useWishlist();
-  const removeWishlist = useRemoveFromWishlist();
+  const toggleWishlist = useToggleWishlist();
 
   const handleRemove = async (productId: string) => {
     try {
-      await removeWishlist.mutateAsync(productId);
+      await toggleWishlist.mutateAsync({ productId, isWishlist: false });
       toast.success('Removed from wishlist');
     } catch {
       toast.error('Failed to remove');

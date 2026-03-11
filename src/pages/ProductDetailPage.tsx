@@ -1,17 +1,22 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useProductDetail, useCheckWishlist, useAddToWishlist, useRemoveFromWishlist } from '@/hooks/useApi';
+import { useProductDetail, useWishlist, useToggleWishlist } from '@/hooks/useApi';
 import { useAuth } from '@/context/AuthContext';
 import { ArrowLeft, Heart, Share2, MapPin, Tag, Ruler, Palette, Package, Layers } from 'lucide-react';
 import { toast } from 'sonner';
+import { useMemo } from 'react';
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: product, isLoading } = useProductDetail(id!);
-  const { data: isWishlisted } = useCheckWishlist(id!);
-  const addWishlist = useAddToWishlist();
-  const removeWishlist = useRemoveFromWishlist();
+  const { data: wishlistItems = [] } = useWishlist();
+  const toggleWishlistMutation = useToggleWishlist();
+
+  const isWishlisted = useMemo(
+    () => wishlistItems.some(item => item.product_id === id),
+    [wishlistItems, id]
+  );
 
   const toggleWishlist = async () => {
     if (!user) {
@@ -20,13 +25,8 @@ export default function ProductDetailPage() {
       return;
     }
     try {
-      if (isWishlisted) {
-        await removeWishlist.mutateAsync(id!);
-        toast.success('Removed from wishlist');
-      } else {
-        await addWishlist.mutateAsync(id!);
-        toast.success('Added to wishlist');
-      }
+      await toggleWishlistMutation.mutateAsync({ productId: id!, isWishlist: !isWishlisted });
+      toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
     } catch {
       toast.error('Failed to update wishlist');
     }

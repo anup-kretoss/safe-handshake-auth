@@ -149,7 +149,7 @@ export interface WishlistItem {
 
 export async function fetchWishlist(): Promise<WishlistItem[]> {
   const headers = await getAuthHeaders();
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/wishlist?action=list`, {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/wishlist`, {
     headers: { ...headers, 'Content-Type': 'application/json' },
   });
   const json = await res.json();
@@ -157,37 +157,16 @@ export async function fetchWishlist(): Promise<WishlistItem[]> {
   return json.data;
 }
 
-export async function addToWishlist(productId: string) {
+export async function toggleWishlist(productId: string, isWishlist: boolean) {
   const headers = await getAuthHeaders();
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/wishlist?action=add`, {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/wishlist`, {
     method: 'POST',
     headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ product_id: productId }),
+    body: JSON.stringify({ product_id: productId, isWishlist }),
   });
   const json = await res.json();
   if (!json.success) throw new Error(json.message);
   return json.data;
-}
-
-export async function removeFromWishlist(productId: string) {
-  const headers = await getAuthHeaders();
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/wishlist?action=remove`, {
-    method: 'POST',
-    headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ product_id: productId }),
-  });
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message);
-}
-
-export async function checkWishlist(productId: string): Promise<boolean> {
-  const headers = await getAuthHeaders();
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/wishlist?action=check&product_id=${productId}`, {
-    headers: { ...headers, 'Content-Type': 'application/json' },
-  });
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message);
-  return json.in_wishlist;
 }
 
 // ---- PROFILE ----

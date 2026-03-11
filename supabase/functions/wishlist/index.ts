@@ -13,9 +13,6 @@ serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url);
-    const action = url.searchParams.get('action') || 'list';
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!;
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -31,8 +28,8 @@ serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // ---- LIST WISHLIST ----
-    if (action === 'list') {
+    // ---- GET WISHLIST (GET request) ----
+    if (req.method === 'GET') {
       const { data, error } = await adminClient
         .from('wishlist')
         .select('id, product_id, created_at, products(id, title, price, images, condition)')
@@ -43,57 +40,43 @@ serve(async (req) => {
       return json({ success: true, data });
     }
 
-    // ---- ADD TO WISHLIST ----
-    if (action === 'add') {
-      if (req.method !== 'POST') return json({ success: false, message: 'POST required' }, 405);
+    // ---- TOGGLE WISHLIST (POST request) ----
+    if (req.method === 'POST') {
       const body = await req.json();
-      const { product_id } = body;
-      if (!product_id) return json({ success: false, message: 'product_id is required' }, 400);
+      const { product_id, isWishlist } = body;
 
-      const { data, error } = await adminClient
-        .from('wishlist')
-        .upsert({ user_id: user.id, product_id }, { onConflict: 'user_id,product_id' })
-        .select()
-        .single();
+      if (!product_id) {
+        return json({ success: false, message: 'product_id is required' }, 400);
+      }
 
-      if (error) throw error;
-      return json({ success: true, data });
+      if (typeof isWishlist !== 'boolean') {
+        return json({ success: false, message: 'isWishlist must be a boolean' }, 400);
+      }
+
+      if (isWishlist) {
+        // Add to wishlist
+        const { data, error } = await adminClient
+          .from('wishlist')
+          .upsert({ user_id: user.id, product_id }, { onConflict: 'user_id,product_id' })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return json({ success: true, data, message: 'Added to wishlist' });
+      } else {
+        // Remove from wishlist
+        const { error } = await adminClient
+          .from('wishlist')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('product_id', product_id);
+
+        if (error) throw error;
+        return json({ success: true, message: 'Removed from wishlist' });
+      }
     }
 
-    // ---- REMOVE FROM WISHLIST ----
-    if (action === 'remove') {
-      if (req.method !== 'POST') return json({ success: false, message: 'POST required' }, 405);
-      const body = await req.json();
-      const { product_id } = body;
-      if (!product_id) return json({ success: false, message: 'product_id is required' }, 400);
-
-      const { error } = await adminClient
-        .from('wishlist')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('product_id', product_id);
-
-      if (error) throw error;
-      return json({ success: true, message: 'Removed from wishlist' });
-    }
-
-    // ---- CHECK IF IN WISHLIST ----
-    if (action === 'check') {
-      const productId = url.searchParams.get('product_id');
-      if (!productId) return json({ success: false, message: 'product_id is required' }, 400);
-
-      const { data, error } = await adminClient
-        .from('wishlist')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('product_id', productId)
-        .maybeSingle();
-
-      if (error) throw error;
-      return json({ success: true, in_wishlist: !!data });
-    }
-
-    return json({ success: false, message: 'Invalid action' }, 400);
+    return json({ success: false, message: 'Method not allowed' }, 405);
   } catch (err) {
     return json({ success: false, message: err.message || 'Internal server error' }, 500);
   }

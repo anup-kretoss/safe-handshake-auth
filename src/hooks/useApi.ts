@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   fetchCategories, fetchSubCategories, fetchProducts, searchProducts,
   fetchProductDetail, createProduct, deleteProduct,
-  fetchWishlist, addToWishlist, removeFromWishlist, checkWishlist,
+  fetchWishlist, toggleWishlist,
   getProfile, updateProfile,
 } from '@/lib/api';
 
@@ -64,31 +64,14 @@ export function useWishlist() {
   return useQuery({ queryKey: ['wishlist'], queryFn: fetchWishlist });
 }
 
-export function useAddToWishlist() {
+export function useToggleWishlist() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: addToWishlist,
+    mutationFn: ({ productId, isWishlist }: { productId: string; isWishlist: boolean }) =>
+      toggleWishlist(productId, isWishlist),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['wishlist'] });
     },
-  });
-}
-
-export function useRemoveFromWishlist() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: removeFromWishlist,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['wishlist'] });
-    },
-  });
-}
-
-export function useCheckWishlist(productId: string) {
-  return useQuery({
-    queryKey: ['wishlist', 'check', productId],
-    queryFn: () => checkWishlist(productId),
-    enabled: !!productId,
   });
 }
 
