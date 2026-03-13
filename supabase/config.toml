@@ -42,6 +42,9 @@ verify_jwt = false
 [functions.notifications-all]
 verify_jwt = false
 
+[functions.notifications]
+verify_jwt = false
+
 [functions.change-password]
 verify_jwt = false
 
