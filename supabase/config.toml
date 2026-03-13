@@ -29,3 +29,21 @@ verify_jwt = false
 
 [functions.get-profile]
 verify_jwt = false
+
+[functions.orders]
+verify_jwt = false
+
+[functions.delivery-requests]
+verify_jwt = false
+
+[functions.conversations]
+verify_jwt = false
+
+[functions.notifications-all]
+verify_jwt = false
+
+[functions.change-password]
+verify_jwt = false
+
+[functions.logout]
+verify_jwt = false
