@@ -31,7 +31,7 @@ serve(async (req) => {
       return json({ success: true, data });
     }
 
-    // ---- GET SUB CATEGORIES (with group_name) ----
+    // ---- GET SUB CATEGORIES ----
     if (action === 'sub_categories') {
       const categoryId = url.searchParams.get('category_id');
       let query = publicClient.from('sub_categories').select('id, name, category_id, group_name, created_at');
@@ -72,9 +72,22 @@ serve(async (req) => {
       if (brand) query = query.ilike('brand', `%${brand}%`);
       if (sellerId) query = query.eq('seller_id', sellerId);
 
-      const { data, error, count } = await query;
+      const { data, error } = await query;
       if (error) throw error;
-      return json({ success: true, data, count });
+
+      // Add calculated price with service fee
+      const enriched = (data || []).map((p: any) => {
+        const feePercent = p.service_fee_percentage || 12.5;
+        const priceWithFee = Math.ceil(p.price * (1 + feePercent / 100) * 100) / 100;
+        return {
+          ...p,
+          actual_price: p.price,
+          display_price: priceWithFee,
+          service_fee_percentage: feePercent,
+        };
+      });
+
+      return json({ success: true, data: enriched });
     }
 
     // ---- GET PRODUCT DETAILS ----
@@ -87,6 +100,78 @@ serve(async (req) => {
         .select('*, categories(name), sub_categories(name, group_name)')
         .eq('id', productId)
         .single();
+      if (error) throw error;
+
+      // Get seller profile for seller name
+      const adminClient = createClient(supabaseUrl, serviceRoleKey);
+      const { data: sellerProfile } = await adminClient
+        .from('profiles')
+        .select('first_name, last_name, user_id')
+        .eq('user_id', data.seller_id)
+        .single();
+
+      const feePercent = data.service_fee_percentage || 12.5;
+      const priceWithFee = Math.ceil(data.price * (1 + feePercent / 100) * 100) / 100;
+
+      return json({
+        success: true,
+        data: {
+          ...data,
+          actual_price: data.price,
+          display_price: priceWithFee,
+          service_fee_percentage: feePercent,
+          seller_name: sellerProfile ? `${sellerProfile.first_name} ${sellerProfile.last_name}`.trim() : 'Unknown',
+          seller_user_id: data.seller_id,
+        },
+      });
+    }
+
+    // ---- LISTED ITEMS (seller's own products) ----
+    if (action === 'listed') {
+      const authHeader = req.headers.get('Authorization');
+      if (!authHeader) return json({ success: false, message: 'Unauthorized' }, 401);
+
+      const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: { user }, error: authError } = await authClient.auth.getUser();
+      if (authError || !user) return json({ success: false, message: 'Unauthorized' }, 401);
+
+      const { data, error } = await publicClient
+        .from('products')
+        .select('*, categories(name), sub_categories(name, group_name)')
+        .eq('seller_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const enriched = (data || []).map((p: any) => {
+        const feePercent = p.service_fee_percentage || 12.5;
+        const priceWithFee = Math.ceil(p.price * (1 + feePercent / 100) * 100) / 100;
+        return { ...p, actual_price: p.price, display_price: priceWithFee, service_fee_percentage: feePercent };
+      });
+
+      return json({ success: true, data: enriched });
+    }
+
+    // ---- GET PICKUP ADDRESS ----
+    if (action === 'pickup-address') {
+      const authHeader = req.headers.get('Authorization');
+      if (!authHeader) return json({ success: false, message: 'Unauthorized' }, 401);
+
+      const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: { user }, error: authError } = await authClient.auth.getUser();
+      if (authError || !user) return json({ success: false, message: 'Unauthorized' }, 401);
+
+      const { data, error } = await publicClient
+        .from('products')
+        .select('id, title, pickup_address')
+        .eq('seller_id', user.id)
+        .not('pickup_address', 'is', null)
+        .order('created_at', { ascending: false });
+
       if (error) throw error;
       return json({ success: true, data });
     }
@@ -105,10 +190,24 @@ serve(async (req) => {
       if (authError || !user) return json({ success: false, message: 'Unauthorized' }, 401);
 
       const body = await req.json();
-      const { title, description, price, images, category_id, sub_category_id, condition, size, color, brand, material, location } = body;
+      const { title, description, price, images, category_id, sub_category_id, condition, size, color, brand, material, location, pickup_address } = body;
 
-      if (!title || !price || !category_id) {
+      if (!title || price === undefined || price === null || !category_id) {
         return json({ success: false, message: 'title, price, and category_id are required' }, 400);
+      }
+
+      // Validate pickup_address - all fields mandatory
+      if (!pickup_address || typeof pickup_address !== 'object') {
+        return json({ success: false, message: 'pickup_address is required with email, phone_number, address, town_city, postcode' }, 400);
+      }
+      const requiredPickupFields = ['email', 'phone_number', 'address', 'town_city', 'postcode'];
+      const missingFields = requiredPickupFields.filter(f => !pickup_address[f] || String(pickup_address[f]).trim() === '');
+      if (missingFields.length > 0) {
+        return json({ success: false, message: `Pickup address missing required fields: ${missingFields.join(', ')}` }, 400);
+      }
+
+      if (!condition || !['new', 'good', 'worn'].includes(condition)) {
+        return json({ success: false, message: 'condition is required and must be new, good, or worn' }, 400);
       }
 
       const adminClient = createClient(supabaseUrl, serviceRoleKey);
@@ -117,23 +216,68 @@ serve(async (req) => {
         .insert({
           title,
           description: description || '',
-          price: parseFloat(price),
+          price: parseFloat(String(price)),
           images: images || [],
           category_id,
           sub_category_id: sub_category_id || null,
           seller_id: user.id,
-          condition: condition || 'new',
+          condition,
           size: size || '',
           color: color || '',
           brand: brand || '',
           material: material || '',
           location: location || '',
+          pickup_address,
         })
-        .select()
+        .select('*, categories(name), sub_categories(name, group_name)')
         .single();
 
       if (error) throw error;
       return json({ success: true, data });
+    }
+
+    // ---- UPLOAD PRODUCT IMAGES ----
+    if (action === 'upload-images') {
+      if (req.method !== 'POST') return json({ success: false, message: 'POST required' }, 405);
+
+      const authHeader = req.headers.get('Authorization');
+      if (!authHeader) return json({ success: false, message: 'Unauthorized' }, 401);
+
+      const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: { user }, error: authError } = await authClient.auth.getUser();
+      if (authError || !user) return json({ success: false, message: 'Unauthorized' }, 401);
+
+      const formData = await req.formData();
+      const files = formData.getAll('files');
+
+      if (!files || files.length === 0) {
+        return json({ success: false, message: 'No files provided' }, 400);
+      }
+
+      const adminClient = createClient(supabaseUrl, serviceRoleKey);
+      const uploadedUrls: string[] = [];
+
+      for (const file of files) {
+        if (!(file instanceof File)) continue;
+        const ext = file.name.split('.').pop() || 'jpg';
+        const fileName = `${user.id}/${crypto.randomUUID()}.${ext}`;
+        
+        const { error: uploadError } = await adminClient.storage
+          .from('product-images')
+          .upload(fileName, file, { contentType: file.type, upsert: false });
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = adminClient.storage
+          .from('product-images')
+          .getPublicUrl(fileName);
+
+        uploadedUrls.push(urlData.publicUrl);
+      }
+
+      return json({ success: true, data: { urls: uploadedUrls } });
     }
 
     // ---- UPDATE PRODUCT ----

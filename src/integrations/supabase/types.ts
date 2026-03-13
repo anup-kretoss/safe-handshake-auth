@@ -32,6 +32,219 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          product_id: string | null
+          seller_id: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          seller_id: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          seller_id?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_requests: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          order_id: string | null
+          product_id: string
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          order_id?: string | null
+          product_id: string
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          order_id?: string | null
+          product_id?: string
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_requests_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          message_type: string
+          offer_amount: number | null
+          offer_status: string | null
+          sender_id: string
+        }
+        Insert: {
+          content?: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message_type?: string
+          offer_amount?: number | null
+          offer_status?: string | null
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message_type?: string
+          offer_amount?: number | null
+          offer_status?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          is_read: boolean
+          message: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          is_read?: boolean
+          message?: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          is_read?: boolean
+          message?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          delivery_price: number
+          delivery_type: string
+          id: string
+          product_id: string
+          seller_id: string
+          shipping_address: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          delivery_price?: number
+          delivery_type?: string
+          id?: string
+          product_id: string
+          seller_id: string
+          shipping_address: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          delivery_price?: number
+          delivery_type?: string
+          id?: string
+          product_id?: string
+          seller_id?: string
+          shipping_address?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       password_reset_otps: {
         Row: {
           created_at: string
@@ -72,8 +285,10 @@ export type Database = {
           is_sold: boolean
           location: string | null
           material: string | null
+          pickup_address: Json | null
           price: number
           seller_id: string
+          service_fee_percentage: number
           size: string | null
           sub_category_id: string | null
           title: string
@@ -91,8 +306,10 @@ export type Database = {
           is_sold?: boolean
           location?: string | null
           material?: string | null
+          pickup_address?: Json | null
           price: number
           seller_id: string
+          service_fee_percentage?: number
           size?: string | null
           sub_category_id?: string | null
           title: string
@@ -110,8 +327,10 @@ export type Database = {
           is_sold?: boolean
           location?: string | null
           material?: string | null
+          pickup_address?: Json | null
           price?: number
           seller_id?: string
+          service_fee_percentage?: number
           size?: string | null
           sub_category_id?: string | null
           title?: string
