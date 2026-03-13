@@ -1,0 +1,54 @@
+{
+  "info": {
+    "_postman_id": "souk-it-final-2026",
+    "name": "Souk IT - Complete API Collection (Final)",
+    "description": "Complete collection with products (isWishlist), notifications, and wishlist APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('ACCESS_TOKEN', jsonData.access_token);",
+                  "    pm.collectionVariables.set('USER_ID', jsonData.user.id);",
+                  "    pm.collectionVariables.set('TARGET_USER_ID', jsonData.user.id);",
+                  "    console.log('✅ ACCESS_TOKEN saved');",
+                  "    console.log('✅ USER_ID saved:', jsonData.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "apikey", "value": "{{SUPABASE_ANON_KEY}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{TEST_EMAIL}}\",\n    \"password\": \"{{TEST_PASSWORD}}\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["auth", "v1", "token"],
+              "query": [{"key": "grant_type", "value": "password"}]
+            },
+            "description": "Login and auto-save ACCESS_TOKEN and USER_ID"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
+import { useFCM } from "@/hooks/useFCM";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -20,6 +21,37 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function AppContent() {
+  useFCM(); // Initialize FCM listener
+  
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/dashboard" element={
+        <ProtectedRoute><HomePage /></ProtectedRoute>
+      } />
+      <Route path="/search" element={
+        <ProtectedRoute><SearchPage /></ProtectedRoute>
+      } />
+      <Route path="/product/:id" element={<ProductDetailPage />} />
+      <Route path="/sell" element={
+        <ProtectedRoute><SellItemPage /></ProtectedRoute>
+      } />
+      <Route path="/wishlist" element={
+        <ProtectedRoute><WishlistPage /></ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute><ProfilePage /></ProtectedRoute>
+      } />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -27,30 +59,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/dashboard" element={
-              <ProtectedRoute><HomePage /></ProtectedRoute>
-            } />
-            <Route path="/search" element={
-              <ProtectedRoute><SearchPage /></ProtectedRoute>
-            } />
-            <Route path="/product/:id" element={<ProductDetailPage />} />
-            <Route path="/sell" element={
-              <ProtectedRoute><SellItemPage /></ProtectedRoute>
-            } />
-            <Route path="/wishlist" element={
-              <ProtectedRoute><WishlistPage /></ProtectedRoute>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute><ProfilePage /></ProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppContent />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

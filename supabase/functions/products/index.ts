@@ -173,7 +173,35 @@ serve(async (req) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return json({ success: true, data });
+
+      // Check if user is authenticated and add isWishlist field
+      const authHeader = req.headers.get('Authorization');
+      let isWishlist = false;
+
+      if (authHeader) {
+        try {
+          const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+            global: { headers: { Authorization: authHeader } },
+          });
+          const { data: { user } } = await authClient.auth.getUser();
+          
+          if (user) {
+            const adminClient = createClient(supabaseUrl, serviceRoleKey);
+            const { data: wishlistData } = await adminClient
+              .from('wishlist')
+              .select('id')
+              .eq('user_id', user.id)
+              .eq('product_id', productId)
+              .maybeSingle();
+
+            isWishlist = !!wishlistData;
+          }
+        } catch (authError) {
+          console.error('Auth error:', authError);
+        }
+      }
+
+      return json({ success: true, data: { ...data, isWishlist } });
     }
 
     // ---- SELL AN ITEM (CREATE PRODUCT) ----

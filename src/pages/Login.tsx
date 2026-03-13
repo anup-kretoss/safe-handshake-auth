@@ -30,6 +30,7 @@ export default function Login() {
       }
 
       toast.success('Welcome back!');
+      // FCM token will be updated by AuthContext
       navigate('/');
     } catch {
       toast.error('Something went wrong. Please try again.');

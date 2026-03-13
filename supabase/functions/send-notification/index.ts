@@ -64,9 +64,16 @@ serve(async (req) => {
       });
     }
 
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
+    if (!supabaseKey) {
+      return new Response(JSON.stringify({ success: false, message: 'supabaseKey is required.' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!,
+      supabaseKey,
       { global: { headers: { Authorization: authHeader } } }
     );
 
@@ -98,10 +105,30 @@ serve(async (req) => {
       .single();
 
     if (profileError || !profile?.fcm_token) {
-      return new Response(JSON.stringify({ success: false, message: 'User has no FCM token registered' }), {
-        status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      // Still save notification to database even if no FCM token
+      await adminClient.from('notifications').insert({
+        user_id: targetUserId,
+        title,
+        message,
+        type: 'general',
+      });
+
+      return new Response(JSON.stringify({ 
+        success: false, 
+        message: 'User has no FCM token registered. Notification saved to database.' 
+      }), {
+        status: 404, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    // Save notification to database
+    await adminClient.from('notifications').insert({
+      user_id: targetUserId,
+      title,
+      message,
+      type: 'general',
+    });
 
     // Get access token and send FCM message
     const accessToken = await getAccessToken();
@@ -127,12 +154,21 @@ serve(async (req) => {
     const fcmResult = await fcmResponse.json();
 
     if (!fcmResponse.ok) {
-      return new Response(JSON.stringify({ success: false, message: 'FCM send failed', details: fcmResult }), {
-        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return new Response(JSON.stringify({ 
+        success: false, 
+        message: 'FCM send failed but notification saved to database', 
+        details: fcmResult 
+      }), {
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({ success: true, message: 'Notification sent', data: fcmResult }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: 'Notification sent and saved', 
+      data: fcmResult 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {

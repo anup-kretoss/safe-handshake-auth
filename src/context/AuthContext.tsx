@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
+import { requestFCMToken } from '@/lib/firebase';
+import { updateProfile } from '@/lib/api';
 
 interface Profile {
   id: string;
@@ -43,6 +45,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(data as Profile | null);
   }, []);
 
+  const updateFCMToken = useCallback(async () => {
+    try {
+      const fcmToken = await requestFCMToken();
+      if (fcmToken) {
+        await updateProfile({ fcmToken });
+        console.log('FCM token updated successfully');
+      }
+    } catch (error) {
+      console.error('Failed to update FCM token:', error);
+    }
+  }, []);
+
   const refreshProfile = useCallback(async () => {
     if (user) await fetchProfile(user.id);
   }, [user, fetchProfile]);
@@ -55,7 +69,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         if (session?.user) {
           // Use setTimeout to avoid potential deadlocks
-          setTimeout(() => fetchProfile(session.user.id), 0);
+          setTimeout(() => {
+            fetchProfile(session.user.id);
+            // Update FCM token on sign in
+            if (event === 'SIGNED_IN') {
+              updateFCMToken();
+            }
+          }, 0);
         } else {
           setProfile(null);
         }
@@ -69,12 +89,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchProfile(session.user.id);
+        updateFCMToken();
       }
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, [fetchProfile]);
+  }, [fetchProfile, updateFCMToken]);
 
   const signOut = async () => {
     await supabase.auth.signOut();

@@ -26,6 +26,7 @@ export interface Product {
   material: string;
   location: string;
   is_sold: boolean;
+  isWishlist: boolean;
   created_at: string;
   updated_at: string;
   categories?: { name: string };
