@@ -31,6 +31,30 @@ export interface Product {
   updated_at: string;
   categories?: { name: string };
   sub_categories?: { name: string; group_name?: string };
+  seller_name?: string;
+  actual_price?: number;
+  display_price?: number;
+  service_fee_percentage?: number;
+}
+
+export interface Address {
+  email: string;
+  phone_number: string;
+  address: string;
+  town_city: string;
+  postcode: string;
+}
+
+export interface Order {
+  id: string;
+  product_id: string;
+  buyer_id: string;
+  seller_id: string;
+  delivery_type: 'standard' | '24hour';
+  delivery_price: number;
+  shipping_address: Address;
+  status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
+  created_at: string;
 }
 
 export interface Category {
@@ -117,12 +141,14 @@ export async function createProduct(product: {
   brand?: string;
   material?: string;
   location?: string;
-}): Promise<Product> {
+} | FormData): Promise<Product> {
   const headers = await getAuthHeaders();
+  const isFormData = product instanceof FormData;
+
   const res = await fetch(`${SUPABASE_URL}/functions/v1/products?action=create`, {
     method: 'POST',
-    headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify(product),
+    headers: isFormData ? headers : { ...headers, 'Content-Type': 'application/json' },
+    body: isFormData ? product : JSON.stringify(product),
   });
   const json = await res.json();
   if (!json.success) throw new Error(json.message);
@@ -195,6 +221,33 @@ export async function updateProfile(data: {
     method: 'POST',
     headers: { ...headers, 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message);
+  return json.data;
+}
+
+// ---- ORDERS ----
+export async function createOrder(data: {
+  product_id: string;
+  delivery_type: 'standard' | '24hour';
+  shipping_address: Address;
+}) {
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/orders?action=create`, {
+    method: 'POST',
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message);
+  return json.data;
+}
+
+export async function fetchShippingAddresses(): Promise<{ id: string; shipping_address: Address }[]> {
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/orders?action=shipping-addresses`, {
+    headers: { ...headers, 'Content-Type': 'application/json' },
   });
   const json = await res.json();
   if (!json.success) throw new Error(json.message);

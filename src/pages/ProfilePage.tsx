@@ -1,7 +1,9 @@
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, User, Mail, Phone, Calendar, LogOut, ChevronRight } from 'lucide-react';
+import { ArrowLeft, User, Mail, Phone, Calendar, LogOut, ChevronRight, ShoppingBag, Bell, Lock } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function ProfilePage() {
   const { user, profile, signOut } = useAuth();
@@ -10,6 +12,27 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     await signOut();
     navigate('/login');
+  };
+
+  const handleChangePassword = async () => {
+    const oldPassword = prompt('Enter current password:');
+    if (!oldPassword) return;
+    const newPassword = prompt('Enter new password (min 6 chars):');
+    if (!newPassword || newPassword.length < 6) {
+      if (newPassword) toast.error('Password too short');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('change-password', {
+        method: 'POST',
+        body: { old_password: oldPassword, new_password: newPassword }
+      });
+      if (error) throw error;
+      toast.success('Password updated successfully');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update password');
+    }
   };
 
   const initials = `${(profile?.first_name || '')[0] || ''}${(profile?.last_name || '')[0] || ''}`.toUpperCase() || 'U';
@@ -58,22 +81,107 @@ export default function ProfilePage() {
           ))}
         </div>
 
+        {/* Quick Actions */}
+        <div className="space-y-2">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">Quick Actions</h3>
+          <div className="space-y-2">
+            <Link
+              to="/orders"
+              className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors"
+            >
+              <div className="h-9 w-9 rounded-lg bg-green-500/10 flex items-center justify-center">
+                <ShoppingBag className="h-4 w-4 text-green-500" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">My Orders</p>
+                <p className="text-[10px] text-muted-foreground">View buying & selling orders</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+            
+            <Link
+              to="/seller-dashboard"
+              className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors"
+            >
+              <div className="h-9 w-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                <ShoppingBag className="h-4 w-4 text-purple-500" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Seller Dashboard</p>
+                <p className="text-[10px] text-muted-foreground">Manage your listings & sales</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+
+            <Link
+              to="/notifications"
+              className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors"
+            >
+              <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <Bell className="h-4 w-4 text-blue-500" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Notifications</p>
+                <p className="text-[10px] text-muted-foreground">View all alerts & updates</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+          </div>
+        </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-green-500/10 flex items-center justify-center">
+                  <Mail className="h-4 w-4 text-green-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Email Alerts</p>
+                  <p className="text-[10px] text-muted-foreground">Receive status updates via email</p>
+                </div>
+              </div>
+              <input type="checkbox" defaultChecked className="h-5 w-5 accent-primary" />
+            </div>
+          </div>
+        </div>
+
         {/* Actions */}
         <div className="space-y-2 pt-4">
           <Link
-            to="/dashboard"
+            to="/orders"
             className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card"
           >
-            <div className="h-9 w-9 rounded-lg bg-secondary flex items-center justify-center">
-              <User className="h-4 w-4 text-foreground" />
+            <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
+              <ShoppingBag className="h-4 w-4 text-blue-500" />
             </div>
-            <span className="text-sm font-medium text-foreground">Edit Profile</span>
+            <span className="text-sm font-medium text-foreground">My Orders</span>
+            <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
+          </Link>
+
+          <Link
+            to="/notifications"
+            className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card"
+          >
+            <div className="h-9 w-9 rounded-lg bg-orange-500/10 flex items-center justify-center">
+              <Bell className="h-4 w-4 text-orange-500" />
+            </div>
+            <span className="text-sm font-medium text-foreground">Notifications</span>
             <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
           </Link>
 
           <button
+            onClick={handleChangePassword}
+            className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-card transition hover:bg-muted/50"
+          >
+            <div className="h-9 w-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
+              <Lock className="h-4 w-4 text-purple-500" />
+            </div>
+            <span className="text-sm font-medium text-foreground">Change Password</span>
+            <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
+          </button>
+
+          <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 p-3 rounded-xl border border-destructive/20 bg-destructive/5"
+            className="w-full flex items-center gap-3 p-3 rounded-xl border border-destructive/20 bg-destructive/5 mt-4 transition hover:bg-destructive/10"
           >
             <div className="h-9 w-9 rounded-lg bg-destructive/10 flex items-center justify-center">
               <LogOut className="h-4 w-4 text-destructive" />

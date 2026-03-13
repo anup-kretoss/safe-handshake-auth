@@ -17,13 +17,18 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import SellItemPage from "./pages/SellItemPage";
 import WishlistPage from "./pages/WishlistPage";
 import ProfilePage from "./pages/ProfilePage";
+import InboxPage from "./pages/InboxPage";
+import ChatPage from "./pages/ChatPage";
+import OrdersPage from "./pages/OrdersPage";
+import SellerDashboard from "./pages/SellerDashboard";
+import NotificationsPage from "./pages/NotificationsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 function AppContent() {
   useFCM(); // Initialize FCM listener
-  
+
   return (
     <Routes>
       <Route path="/" element={<Index />} />
@@ -46,6 +51,21 @@ function AppContent() {
       } />
       <Route path="/profile" element={
         <ProtectedRoute><ProfilePage /></ProtectedRoute>
+      } />
+      <Route path="/inbox" element={
+        <ProtectedRoute><InboxPage /></ProtectedRoute>
+      } />
+      <Route path="/chat/:id" element={
+        <ProtectedRoute><ChatPage /></ProtectedRoute>
+      } />
+      <Route path="/orders" element={
+        <ProtectedRoute><OrdersPage /></ProtectedRoute>
+      } />
+      <Route path="/seller-dashboard" element={
+        <ProtectedRoute><SellerDashboard /></ProtectedRoute>
+      } />
+      <Route path="/notifications" element={
+        <ProtectedRoute><NotificationsPage /></ProtectedRoute>
       } />
       <Route path="*" element={<NotFound />} />
     </Routes>

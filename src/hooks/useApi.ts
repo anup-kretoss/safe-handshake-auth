@@ -86,3 +86,27 @@ export function useUpdateProfile() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['profile'] }),
   });
 }
+
+export function useCreateOrder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: {
+      product_id: string;
+      delivery_type: 'standard' | '24hour';
+      shipping_address: any;
+    }) => {
+      // Import createOrder dynamically or ensured it's imported at top
+      return import('@/lib/api').then(m => m.createOrder(data as any));
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['orders'] });
+    },
+  });
+}
+
+export function useShippingAddresses() {
+  return useQuery({
+    queryKey: ['shipping_addresses'],
+    queryFn: () => import('@/lib/api').then(m => m.fetchShippingAddresses()),
+  });
+}

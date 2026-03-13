@@ -73,13 +73,14 @@ serve(async (req) => {
       const { delivery_request_id } = body;
       if (!delivery_request_id) return json({ success: false, message: 'delivery_request_id required' }, 400);
 
-      const { data: dr, error: drError } = await adminClient
+      const { data: drs, error: drError } = await adminClient
         .from('delivery_requests')
         .select('*')
-        .eq('id', delivery_request_id)
-        .single();
+        .eq('id', delivery_request_id);
 
-      if (drError || !dr) return json({ success: false, message: 'Delivery request not found' }, 404);
+      if (drError) throw drError;
+      const dr = drs?.[0];
+      if (!dr) return json({ success: false, message: 'Delivery request not found' }, 404);
       if (dr.seller_id !== user.id) return json({ success: false, message: 'Only seller can approve' }, 403);
       if (dr.status !== 'pending') return json({ success: false, message: `Cannot approve: status is ${dr.status}` }, 400);
 
@@ -118,13 +119,14 @@ serve(async (req) => {
       const { delivery_request_id } = body;
       if (!delivery_request_id) return json({ success: false, message: 'delivery_request_id required' }, 400);
 
-      const { data: dr, error: drError } = await adminClient
+      const { data: drs, error: drError } = await adminClient
         .from('delivery_requests')
         .select('*')
-        .eq('id', delivery_request_id)
-        .single();
+        .eq('id', delivery_request_id);
 
-      if (drError || !dr) return json({ success: false, message: 'Delivery request not found' }, 404);
+      if (drError) throw drError;
+      const dr = drs?.[0];
+      if (!dr) return json({ success: false, message: 'Delivery request not found' }, 404);
       if (dr.seller_id !== user.id) return json({ success: false, message: 'Only seller can decline' }, 403);
       if (dr.status !== 'pending') return json({ success: false, message: `Cannot decline: status is ${dr.status}` }, 400);
 
@@ -150,36 +152,44 @@ serve(async (req) => {
     // ---- CHECK STATUS ----
     if (action === 'status') {
       const drId = url.searchParams.get('id');
-      if (!drId) return json({ success: false, message: 'id required' }, 400);
+      const orderId = url.searchParams.get('order_id');
 
-      const { data, error } = await adminClient
+      if (!drId && !orderId) return json({ success: false, message: 'id or order_id required' }, 400);
+
+      let query = adminClient
         .from('delivery_requests')
         .select('*, orders(status, delivery_type, delivery_price)')
-        .eq('id', drId)
-        .single();
+        .order('created_at', { ascending: false });
+
+      if (drId) query = query.eq('id', drId);
+      else query = query.eq('order_id', orderId);
+
+      const { data: requests, error } = await query;
 
       if (error) throw error;
-      if (data.buyer_id !== user.id && data.seller_id !== user.id) {
-        return json({ success: false, message: 'Not authorized' }, 403);
-      }
+      if (!requests || requests.length === 0) return json({ success: false, message: 'No delivery requests found' }, 404);
 
-      // Check expiry
-      if (data.status === 'pending' && new Date(data.expires_at) < new Date()) {
-        await adminClient.from('delivery_requests').update({ status: 'expired' }).eq('id', data.id);
-        data.status = 'expired';
-      }
-
+      // Process all requests for expiry
       const now = new Date();
-      const expiresAt = new Date(data.expires_at);
-      const remainingMs = Math.max(0, expiresAt.getTime() - now.getTime());
+      const processed = await Promise.all(requests.map(async (dr: any) => {
+        if (dr.status === 'pending' && new Date(dr.expires_at) < now) {
+          await adminClient.from('delivery_requests').update({ status: 'expired' }).eq('id', dr.id);
+          dr.status = 'expired';
+        }
 
-      return json({
-        success: true,
-        data: {
-          ...data,
+        const expiresAt = new Date(dr.expires_at);
+        const remainingMs = Math.max(0, expiresAt.getTime() - now.getTime());
+        return {
+          ...dr,
           remaining_seconds: Math.floor(remainingMs / 1000),
           is_expired: remainingMs <= 0,
-        },
+        };
+      }));
+
+      // Return array if order_id was used, or single object if id was used
+      return json({
+        success: true,
+        data: drId ? processed[0] : processed
       });
     }
 

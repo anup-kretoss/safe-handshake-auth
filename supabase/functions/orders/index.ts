@@ -214,9 +214,11 @@ serve(async (req) => {
         .from('orders')
         .select('*, products(*, categories(name), sub_categories(name, group_name)), delivery_requests(*)')
         .eq('id', orderId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) return json({ success: false, message: 'Order not found' }, 404);
+
       if (data.buyer_id !== user.id && data.seller_id !== user.id) {
         return json({ success: false, message: 'Not authorized' }, 403);
       }
@@ -238,7 +240,8 @@ serve(async (req) => {
         return json({ success: false, message: `status must be one of: ${validStatuses.join(', ')}` }, 400);
       }
 
-      const { data: order } = await adminClient.from('orders').select('*').eq('id', order_id).single();
+      const { data: order, error: orderError } = await adminClient.from('orders').select('*').eq('id', order_id).maybeSingle();
+      if (orderError) throw orderError;
       if (!order) return json({ success: false, message: 'Order not found' }, 404);
 
       // Sellers can ship, system/buyer can mark delivered
