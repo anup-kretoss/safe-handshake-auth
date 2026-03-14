@@ -126,8 +126,42 @@ export default function ProfilePage() {
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </Link>
+
+            {/* Admin Dashboard - Only show for admin users */}
+            {profile?.role && ['admin', 'super_admin'].includes(profile.role) && (
+              <Link
+                to="/admin-dashboard"
+                className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors"
+              >
+                <div className="h-9 w-9 rounded-lg bg-red-500/10 flex items-center justify-center">
+                  <User className="h-4 w-4 text-red-500" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Admin Dashboard</p>
+                  <p className="text-[10px] text-muted-foreground">Manage delivery requests</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </Link>
+            )}
           </div>
         </div>
+
+        {/* Settings */}
+        <div className="space-y-2">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">Settings</h3>
+          <div className="p-3 rounded-xl border border-border bg-card space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <Bell className="h-4 w-4 text-blue-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Push Notifications</p>
+                  <p className="text-[10px] text-muted-foreground">Receive alerts on your device</p>
+                </div>
+              </div>
+              <input type="checkbox" defaultChecked className="h-5 w-5 accent-primary" />
+            </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -145,49 +179,36 @@ export default function ProfilePage() {
         </div>
 
         {/* Actions */}
-        <div className="space-y-2 pt-4">
-          <Link
-            to="/orders"
-            className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card"
-          >
-            <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <ShoppingBag className="h-4 w-4 text-blue-500" />
-            </div>
-            <span className="text-sm font-medium text-foreground">My Orders</span>
-            <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
-          </Link>
+        <div className="space-y-2">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">Account</h3>
+          <div className="space-y-2">
+            <button
+              onClick={handleChangePassword}
+              className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-card transition hover:bg-muted/50"
+            >
+              <div className="h-9 w-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                <Lock className="h-4 w-4 text-purple-500" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-medium">Change Password</p>
+                <p className="text-[10px] text-muted-foreground">Update your account password</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </button>
 
-          <Link
-            to="/notifications"
-            className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card"
-          >
-            <div className="h-9 w-9 rounded-lg bg-orange-500/10 flex items-center justify-center">
-              <Bell className="h-4 w-4 text-orange-500" />
-            </div>
-            <span className="text-sm font-medium text-foreground">Notifications</span>
-            <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
-          </Link>
-
-          <button
-            onClick={handleChangePassword}
-            className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-card transition hover:bg-muted/50"
-          >
-            <div className="h-9 w-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
-              <Lock className="h-4 w-4 text-purple-500" />
-            </div>
-            <span className="text-sm font-medium text-foreground">Change Password</span>
-            <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
-          </button>
-
-          <button
-            onClick={handleSignOut}
-            className="w-full flex items-center gap-3 p-3 rounded-xl border border-destructive/20 bg-destructive/5 mt-4 transition hover:bg-destructive/10"
-          >
-            <div className="h-9 w-9 rounded-lg bg-destructive/10 flex items-center justify-center">
-              <LogOut className="h-4 w-4 text-destructive" />
-            </div>
-            <span className="text-sm font-medium text-destructive">Sign Out</span>
-          </button>
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-3 p-3 rounded-xl border border-destructive/20 bg-destructive/5 transition hover:bg-destructive/10"
+            >
+              <div className="h-9 w-9 rounded-lg bg-destructive/10 flex items-center justify-center">
+                <LogOut className="h-4 w-4 text-destructive" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-medium text-destructive">Sign Out</p>
+                <p className="text-[10px] text-destructive/70">Log out of your account</p>
+              </div>
+            </button>
+          </div>
         </div>
       </main>
       <BottomNav />

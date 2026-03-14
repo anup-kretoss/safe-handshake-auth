@@ -24,7 +24,18 @@ serve(async (req) => {
       });
     }
 
-    const { email, password, first_name, last_name, full_name, date_of_birth, country_code, phone_number } = body;
+    const { 
+      email, 
+      password, 
+      first_name, 
+      last_name, 
+      full_name, 
+      date_of_birth, 
+      country_code, 
+      phone_number,
+      collection_address,
+      delivery_address
+    } = body;
 
     // Support both first_name/last_name and full_name
     let resolvedFirstName = first_name;
@@ -90,6 +101,25 @@ serve(async (req) => {
       errors.push({ field: 'phone_number', message: 'Phone number is required' });
     } else if (!/^\d{7,15}$/.test(phone_number.trim())) {
       errors.push({ field: 'phone_number', message: 'Phone number must be 7-15 digits' });
+    }
+
+    // NEW MANDATORY FIELDS FOR SIGNUP
+    if (!collection_address || typeof collection_address !== 'object') {
+      errors.push({ field: 'collection_address', message: 'Collection address is required' });
+    } else {
+      // Validate collection address structure
+      if (!collection_address.address || !collection_address.town_city || !collection_address.postcode) {
+        errors.push({ field: 'collection_address', message: 'Collection address must include address, town_city, and postcode' });
+      }
+    }
+
+    if (!delivery_address || typeof delivery_address !== 'object') {
+      errors.push({ field: 'delivery_address', message: 'Delivery address is required' });
+    } else {
+      // Validate delivery address structure
+      if (!delivery_address.address || !delivery_address.town_city || !delivery_address.postcode) {
+        errors.push({ field: 'delivery_address', message: 'Delivery address must include address, town_city, and postcode' });
+      }
     }
 
     if (errors.length > 0) {
@@ -163,6 +193,29 @@ serve(async (req) => {
       });
     }
 
+    // Update the profile with additional mandatory fields (profile is auto-created by trigger)
+    const { error: profileErr } = await adminClient
+      .from('profiles')
+      .update({
+        full_name: `${resolvedFirstName.trim()} ${resolvedLastName.trim()}`,
+        collection_address: collection_address,
+        delivery_address: delivery_address,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', newUser.user.id);
+
+    if (profileErr) {
+      // If profile update fails, delete the user
+      await adminClient.auth.admin.deleteUser(newUser.user.id);
+      return new Response(JSON.stringify({
+        success: false,
+        message: profileErr.message || 'Failed to update user profile with mandatory fields',
+        error_code: 'PROFILE_UPDATE_FAILED'
+      }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Sign in the user to get access token
     const anonClient = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -182,9 +235,12 @@ serve(async (req) => {
         email: newUser.user.email,
         first_name: resolvedFirstName.trim(),
         last_name: resolvedLastName.trim(),
+        full_name: `${resolvedFirstName.trim()} ${resolvedLastName.trim()}`,
         date_of_birth: normalizedDob.trim(),
         country_code: country_code.trim(),
         phone_number: phone_number.trim(),
+        collection_address: collection_address,
+        delivery_address: delivery_address,
       },
       session: session?.session ? {
         access_token: session.session.access_token,

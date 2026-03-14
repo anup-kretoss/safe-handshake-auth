@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
-  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+  'Access-Control-Allow-Methods': 'POST, GET, PUT, DELETE, OPTIONS',
 };
 
 serve(async (req) => {
@@ -31,7 +31,7 @@ serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // ---- LIST ALL NOTIFICATIONS ----
+    // ---- LIST NOTIFICATIONS ----
     if (action === 'list') {
       const limit = parseInt(url.searchParams.get('limit') || '50');
       const offset = parseInt(url.searchParams.get('offset') || '0');
@@ -57,7 +57,7 @@ serve(async (req) => {
 
     // ---- MARK AS READ ----
     if (action === 'read') {
-      if (req.method !== 'POST') return json({ success: false, message: 'POST required' }, 405);
+      if (req.method !== 'POST' && req.method !== 'PUT') return json({ success: false, message: 'POST/PUT required' }, 405);
 
       const body = await req.json();
       const { notification_id, read_all } = body;
@@ -65,7 +65,7 @@ serve(async (req) => {
       if (read_all) {
         await adminClient
           .from('notifications')
-          .update({ is_read: true })
+          .update({ is_read: true, read_at: new Date().toISOString() })
           .eq('user_id', user.id)
           .eq('is_read', false);
         return json({ success: true, message: 'All notifications marked as read' });
@@ -75,12 +75,40 @@ serve(async (req) => {
 
       const { error } = await adminClient
         .from('notifications')
-        .update({ is_read: true })
+        .update({ is_read: true, read_at: new Date().toISOString() })
         .eq('id', notification_id)
         .eq('user_id', user.id);
 
       if (error) throw error;
       return json({ success: true, message: 'Notification marked as read' });
+    }
+
+    // ---- DELETE ----
+    if (action === 'delete') {
+      if (req.method !== 'POST' && req.method !== 'DELETE') return json({ success: false, message: 'POST/DELETE required' }, 405);
+
+      const body = await req.json();
+      const { notification_id, delete_all_read } = body;
+
+      if (delete_all_read) {
+        await adminClient
+          .from('notifications')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('is_read', true);
+        return json({ success: true, message: 'All read notifications deleted' });
+      }
+
+      if (!notification_id) return json({ success: false, message: 'notification_id or delete_all_read required' }, 400);
+
+      const { error } = await adminClient
+        .from('notifications')
+        .delete()
+        .eq('id', notification_id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      return json({ success: true, message: 'Notification deleted' });
     }
 
     // ---- UNREAD COUNT ----

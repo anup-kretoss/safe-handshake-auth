@@ -1,0 +1,1123 @@
+{
+  "info": {
+    "name": "Souk IT - Final Complete API Collection",
+    "description": "Complete updated API collection for Souk IT marketplace with enhanced signup, profile management, and notification settings",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "SUPABASE_URL",
+      "value": "https://ciywuwcwixbvmsezppya.supabase.co",
+      "type": "string"
+    },
+    {
+      "key": "SUPABASE_ANON_KEY",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpeXd1d2N3aXhidm1zZXpwcHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDAyOTcsImV4cCI6MjA4NzY3NjI5N30.1b-Y6kVbMA-AjpLLmyl-khzMVZx2H3ktSkgla3eK49k",
+      "type": "string"
+    },
+    {
+      "key": "ACCESS_TOKEN",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated after login/signup"
+    },
+    {
+      "key": "USER_ID",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated after login/signup"
+    },
+    {
+      "key": "BUYER_EMAIL",
+      "value": "john.buyer@example.com",
+      "type": "string"
+    },
+    {
+      "key": "BUYER_PASSWORD",
+      "value": "BuyerPass123!",
+      "type": "string"
+    },
+    {
+      "key": "BUYER_FIRST_NAME",
+      "value": "John",
+      "type": "string"
+    },
+    {
+      "key": "BUYER_LAST_NAME",
+      "value": "Buyer",
+      "type": "string"
+    },
+    {
+      "key": "BUYER_PHONE",
+      "value": "501234567",
+      "type": "string"
+    },
+    {
+      "key": "BUYER_COUNTRY_CODE",
+      "value": "+971",
+      "type": "string"
+    },
+    {
+      "key": "BUYER_DOB",
+      "value": "1990-01-15",
+      "type": "string"
+    },
+    {
+      "key": "BUYER_COLLECTION_ADDRESS",
+      "value": "{\"address\":\"123 Buyer Street, Building A, Apt 101\",\"town_city\":\"Dubai\",\"postcode\":\"12345\"}",
+      "type": "string"
+    },
+    {
+      "key": "BUYER_DELIVERY_ADDRESS",
+      "value": "{\"address\":\"456 Buyer Avenue, Villa 2\",\"town_city\":\"Abu Dhabi\",\"postcode\":\"67890\"}",
+      "type": "string"
+    },
+    {
+      "key": "SELLER_EMAIL",
+      "value": "jane.seller@example.com",
+      "type": "string"
+    },
+    {
+      "key": "SELLER_PASSWORD",
+      "value": "SellerPass123!",
+      "type": "string"
+    },
+    {
+      "key": "SELLER_FIRST_NAME",
+      "value": "Jane",
+      "type": "string"
+    },
+    {
+      "key": "SELLER_LAST_NAME",
+      "value": "Seller",
+      "type": "string"
+    },
+    {
+      "key": "SELLER_PHONE",
+      "value": "507654321",
+      "type": "string"
+    },
+    {
+      "key": "SELLER_COUNTRY_CODE",
+      "value": "+971",
+      "type": "string"
+    },
+    {
+      "key": "SELLER_DOB",
+      "value": "1985-05-20",
+      "type": "string"
+    },
+    {
+      "key": "SELLER_COLLECTION_ADDRESS",
+      "value": "{\"address\":\"789 Seller Street, Shop 5\",\"town_city\":\"Sharjah\",\"postcode\":\"54321\"}",
+      "type": "string"
+    },
+    {
+      "key": "SELLER_DELIVERY_ADDRESS",
+      "value": "{\"address\":\"789 Seller Street, Shop 5\",\"town_city\":\"Sharjah\",\"postcode\":\"54321\"}",
+      "type": "string"
+    },
+    {
+      "key": "ADMIN_EMAIL",
+      "value": "admin@soukit.com",
+      "type": "string"
+    },
+    {
+      "key": "ADMIN_PASSWORD",
+      "value": "AdminPass123!",
+      "type": "string"
+    },
+    {
+      "key": "TEST_USER_EMAIL",
+      "value": "testuser@example.com",
+      "type": "string"
+    },
+    {
+      "key": "TEST_USER_PASSWORD",
+      "value": "TestPass123!",
+      "type": "string"
+    },
+    {
+      "key": "PRODUCT_ID",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated after product creation"
+    },
+    {
+      "key": "ORDER_ID",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated after order creation"
+    },
+    {
+      "key": "DELIVERY_REQUEST_ID",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated after delivery request creation"
+    },
+    {
+      "key": "CONVERSATION_ID",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated after conversation creation"
+    },
+    {
+      "key": "MESSAGE_ID",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated after message creation"
+    },
+    {
+      "key": "NOTIFICATION_ID",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated from notifications"
+    },
+    {
+      "key": "OTP_CODE",
+      "value": "123456",
+      "type": "string",
+      "description": "Sample OTP code for testing"
+    },
+    {
+      "key": "CATEGORY_ID",
+      "value": "1",
+      "type": "string",
+      "description": "Electronics category ID"
+    },
+    {
+      "key": "SUB_CATEGORY_ID",
+      "value": "1",
+      "type": "string",
+      "description": "Mobile Phones sub-category ID"
+    },
+    {
+      "key": "LOCATION_ID",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated from locations API"
+    },
+    {
+      "key": "SAMPLE_PRODUCT_TITLE",
+      "value": "iPhone 14 Pro Max 256GB",
+      "type": "string"
+    },
+    {
+      "key": "SAMPLE_PRODUCT_DESCRIPTION",
+      "value": "Brand new iPhone 14 Pro Max 256GB in Space Black. Sealed box with 1-year warranty. Perfect condition, never used.",
+      "type": "string"
+    },
+    {
+      "key": "SAMPLE_PRODUCT_PRICE",
+      "value": "4500",
+      "type": "string"
+    },
+    {
+      "key": "SAMPLE_PRODUCT_IMAGES",
+      "value": "[\"https://example.com/iphone1.jpg\",\"https://example.com/iphone2.jpg\",\"https://example.com/iphone3.jpg\"]",
+      "type": "string"
+    },
+    {
+      "key": "SAMPLE_MESSAGE_CONTENT",
+      "value": "Hi! Is this item still available? I'm interested in purchasing it.",
+      "type": "string"
+    },
+    {
+      "key": "SAMPLE_OFFER_AMOUNT",
+      "value": "4200",
+      "type": "string"
+    },
+    {
+      "key": "UAE_LOCATIONS",
+      "value": "[\"Dubai\",\"Abu Dhabi\",\"Sharjah\",\"Ajman\",\"Ras Al Khaimah\",\"Fujairah\",\"Umm Al Quwain\",\"Al Ain\"]",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Buyer Registration (Enhanced Signup)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ Buyer registered successfully with mandatory fields');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{BUYER_EMAIL}}\",\n  \"password\": \"{{BUYER_PASSWORD}}\",\n  \"first_name\": \"{{BUYER_FIRST_NAME}}\",\n  \"last_name\": \"{{BUYER_LAST_NAME}}\",\n  \"date_of_birth\": \"{{BUYER_DOB}}\",\n  \"country_code\": \"{{BUYER_COUNTRY_CODE}}\",\n  \"phone_number\": \"{{BUYER_PHONE}}\",\n  \"collection_address\": {\n    \"address\": \"123 Buyer Street, Building A, Apt 101\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  },\n  \"delivery_address\": {\n    \"address\": \"456 Buyer Avenue, Villa 2\",\n    \"town_city\": \"Abu Dhabi\",\n    \"postcode\": \"67890\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/signup",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Seller Registration (Enhanced Signup)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ Seller registered successfully with mandatory fields');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{SELLER_EMAIL}}\",\n  \"password\": \"{{SELLER_PASSWORD}}\",\n  \"first_name\": \"{{SELLER_FIRST_NAME}}\",\n  \"last_name\": \"{{SELLER_LAST_NAME}}\",\n  \"date_of_birth\": \"{{SELLER_DOB}}\",\n  \"country_code\": \"{{SELLER_COUNTRY_CODE}}\",\n  \"phone_number\": \"{{SELLER_PHONE}}\",\n  \"collection_address\": {\n    \"address\": \"789 Seller Street, Shop 5\",\n    \"town_city\": \"Sharjah\",\n    \"postcode\": \"54321\"\n  },\n  \"delivery_address\": {\n    \"address\": \"789 Seller Street, Shop 5\",\n    \"town_city\": \"Sharjah\",\n    \"postcode\": \"54321\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/signup",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "signup"]
+            }
+          }
+        },
+        {
+          "name": "User Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ User logged in successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{BUYER_EMAIL}}\",\n  \"password\": \"{{BUYER_PASSWORD}}\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["auth", "v1", "token"],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Profile Management",
+      "item": [
+        {
+          "name": "Get Complete Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/update-profile",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "update-profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile (JSON)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"{{BUYER_FIRST_NAME}}\",\n  \"last_name\": \"{{BUYER_LAST_NAME}}\",\n  \"phone_number\": \"{{BUYER_PHONE}}\",\n  \"country_code\": \"{{BUYER_COUNTRY_CODE}}\",\n  \"date_of_birth\": \"{{BUYER_DOB}}\",\n  \"gender\": \"male\",\n  \"username\": \"johndoe123\",\n  \"user_description\": \"Tech enthusiast and marketplace user\",\n  \"full_name\": \"{{BUYER_FIRST_NAME}} {{BUYER_LAST_NAME}}\",\n  \"collection_address\": {\n    \"address\": \"123 Updated Street, Building A, Apt 101\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  },\n  \"delivery_address\": {\n    \"address\": \"456 Updated Avenue, Building B, Apt 202\",\n    \"town_city\": \"Abu Dhabi\",\n    \"postcode\": \"54321\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/update-profile",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "update-profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile with Image Upload",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "profileData",
+                  "value": "{\n  \"first_name\": \"{{BUYER_FIRST_NAME}}\",\n  \"last_name\": \"{{BUYER_LAST_NAME}}\",\n  \"phone_number\": \"{{BUYER_PHONE}}\",\n  \"country_code\": \"{{BUYER_COUNTRY_CODE}}\",\n  \"date_of_birth\": \"{{BUYER_DOB}}\",\n  \"gender\": \"male\",\n  \"username\": \"johndoe_updated\",\n  \"user_description\": \"Updated profile with image\",\n  \"full_name\": \"{{BUYER_FIRST_NAME}} {{BUYER_LAST_NAME}}\",\n  \"collection_address\": {\n    \"address\": \"456 Updated Street, Building B, Apt 202\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"54321\"\n  },\n  \"delivery_address\": {\n    \"address\": \"789 Secondary Address, Villa 3\",\n    \"town_city\": \"Abu Dhabi\",\n    \"postcode\": \"67890\"\n  }\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "profile_image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/update-profile",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "update-profile"]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"currentpassword123\",\n  \"new_password\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/change-password",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "Get Locations (Dropdown)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/locations?country=UAE&active=true",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "locations"],
+              "query": [
+                {
+                  "key": "country",
+                  "value": "UAE"
+                },
+                {
+                  "key": "active",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notification Settings",
+      "item": [
+        {
+          "name": "Get Notification Settings (via Profile)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/update-profile",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "update-profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Notification Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"general_notifications\": true,\n  \"email_notifications\": true,\n  \"message_notifications\": false,\n  \"payment_notifications\": true,\n  \"update_notifications\": false\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/notification-settings",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "notification-settings"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Products",
+      "item": [
+        {
+          "name": "Get Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products?action=categories",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "categories"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Product (Seller)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('PRODUCT_ID', response.data.id);",
+                  "        console.log('✅ Product created successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{SAMPLE_PRODUCT_TITLE}}\",\n  \"description\": \"{{SAMPLE_PRODUCT_DESCRIPTION}}\",\n  \"price\": {{SAMPLE_PRODUCT_PRICE}},\n  \"category_id\": {{CATEGORY_ID}},\n  \"sub_category_id\": {{SUB_CATEGORY_ID}},\n  \"condition\": \"new\",\n  \"images\": {{SAMPLE_PRODUCT_IMAGES}},\n  \"is_negotiable\": true,\n  \"location\": \"Dubai\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"]
+            }
+          }
+        },
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products?limit=20&offset=0",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Orders & Delivery",
+      "item": [
+        {
+          "name": "Create Order (24-Hour Delivery)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('ORDER_ID', response.data.id);",
+                  "        console.log('✅ Order created successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{PRODUCT_ID}}\",\n  \"delivery_type\": \"24hour\",\n  \"shipping_address\": {\n    \"address\": \"456 Buyer Avenue, Villa 2\",\n    \"town_city\": \"Abu Dhabi\",\n    \"postcode\": \"67890\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/orders",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Seller Delivery Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/seller-delivery-requests",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "seller-delivery-requests"]
+            }
+          }
+        },
+        {
+          "name": "Approve Delivery Request (Seller)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_request_id\": \"{{DELIVERY_REQUEST_ID}}\",\n  \"action\": \"approve\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/seller-delivery-requests",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "seller-delivery-requests"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 Chat & Messaging",
+      "item": [
+        {
+          "name": "Create Conversation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('CONVERSATION_ID', response.data.id);",
+                  "        console.log('✅ Conversation created successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{PRODUCT_ID}}\",\n  \"seller_id\": \"seller-user-id-here\",\n  \"type\": \"chat\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/conversations",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "conversations"]
+            }
+          }
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversation_id\": \"{{CONVERSATION_ID}}\",\n  \"content\": \"{{SAMPLE_MESSAGE_CONTENT}}\",\n  \"message_type\": \"text\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/conversations",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "conversations"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notifications",
+      "item": [
+        {
+          "name": "Get All Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/notifications?limit=20&offset=0",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "notifications"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notification_id\": \"{{NOTIFICATION_ID}}\",\n  \"is_read\": true\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/notifications",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "notifications"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏪 Seller Dashboard",
+      "item": [
+        {
+          "name": "Get Seller Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products?seller=true&limit=20&offset=0",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"],
+              "query": [
+                {
+                  "key": "seller",
+                  "value": "true"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Seller Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/orders?seller=true&limit=20&offset=0",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "orders"],
+              "query": [
+                {
+                  "key": "seller",
+                  "value": "true"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔧 Admin Functions",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ Admin logged in successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{ADMIN_EMAIL}}\",\n  \"password\": \"{{ADMIN_PASSWORD}}\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["auth", "v1", "token"],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/admin-delivery-requests?action=users&limit=20&offset=0",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "admin-delivery-requests"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "users"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧪 Testing Flow",
+      "item": [
+        {
+          "name": "1. Register Buyer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ Step 1: Buyer registered with mandatory fields');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{TEST_USER_EMAIL}}\",\n  \"password\": \"{{TEST_USER_PASSWORD}}\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\",\n  \"date_of_birth\": \"1990-01-15\",\n  \"country_code\": \"+971\",\n  \"phone_number\": \"501111111\",\n  \"collection_address\": {\n    \"address\": \"123 Test Street, Building A, Apt 101\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  },\n  \"delivery_address\": {\n    \"address\": \"456 Test Avenue, Villa 2\",\n    \"town_city\": \"Abu Dhabi\",\n    \"postcode\": \"67890\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/signup",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "signup"]
+            }
+          }
+        },
+        {
+          "name": "2. Get Complete Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data) {",
+                  "        console.log('✅ Step 2: Profile retrieved with all fields');",
+                  "        console.log('Collection Address:', JSON.stringify(response.data.collection_address));",
+                  "        console.log('Delivery Address:', JSON.stringify(response.data.delivery_address));",
+                  "        console.log('Notification Settings:', JSON.stringify(response.data.notification_settings));",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/update-profile",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "update-profile"]
+            }
+          }
+        },
+        {
+          "name": "3. Update Profile with New Data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success) {",
+                  "        console.log('✅ Step 3: Profile updated successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Buyer\",\n  \"username\": \"updatedbuyer123\",\n  \"user_description\": \"Updated test user profile\",\n  \"collection_address\": {\n    \"address\": \"789 Updated Street, Building C, Apt 301\",\n    \"town_city\": \"Sharjah\",\n    \"postcode\": \"54321\"\n  },\n  \"delivery_address\": {\n    \"address\": \"321 Updated Avenue, Villa 5\",\n    \"town_city\": \"Ajman\",\n    \"postcode\": \"98765\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/update-profile",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "update-profile"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

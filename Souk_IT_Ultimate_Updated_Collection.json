@@ -1,0 +1,1987 @@
+{
+  "info": {
+    "name": "Souk IT - Ultimate API Collection",
+    "description": "Complete updated API collection for Souk IT marketplace with all endpoints and enhanced features",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "SUPABASE_URL",
+      "value": "https://ciywuwcwixbvmsezppya.supabase.co"
+    },
+    {
+      "key": "SUPABASE_ANON_KEY",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpeXd1d2N3aXhidm1zZXpwcHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDAyOTcsImV4cCI6MjA4NzY3NjI5N30.1b-Y6kVbMA-AjpLLmyl-khzMVZx2H3ktSkgla3eK49k"
+    },
+    {
+      "key": "ACCESS_TOKEN",
+      "value": ""
+    },
+    {
+      "key": "USER_ID",
+      "value": ""
+    },
+    {
+      "key": "BUYER_EMAIL",
+      "value": "buyer@test.com"
+    },
+    {
+      "key": "BUYER_PASSWORD",
+      "value": "password123"
+    },
+    {
+      "key": "SELLER_EMAIL",
+      "value": "seller@test.com"
+    },
+    {
+      "key": "SELLER_PASSWORD",
+      "value": "password123"
+    },
+    {
+      "key": "ADMIN_EMAIL",
+      "value": "admin@soukit.com"
+    },
+    {
+      "key": "ADMIN_PASSWORD",
+      "value": "admin123"
+    },
+    {
+      "key": "PRODUCT_ID",
+      "value": ""
+    },
+    {
+      "key": "ORDER_ID",
+      "value": ""
+    },
+    {
+      "key": "DELIVERY_REQUEST_ID",
+      "value": ""
+    },
+    {
+      "key": "CONVERSATION_ID",
+      "value": ""
+    },
+    {
+      "key": "MESSAGE_ID",
+      "value": ""
+    },
+    {
+      "key": "OTP_CODE",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "User Registration (Signup)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ User registered and logged in successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{BUYER_EMAIL}}\",\n  \"password\": \"{{BUYER_PASSWORD}}\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"full_name\": \"John Doe\",\n  \"date_of_birth\": \"1990-01-15\",\n  \"country_code\": \"+971\",\n  \"phone_number\": \"501234567\",\n  \"collection_address\": {\n    \"address\": \"123 Main Street, Building A, Apt 101\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  },\n  \"delivery_address\": {\n    \"address\": \"456 Secondary Street, Villa 2\",\n    \"town_city\": \"Abu Dhabi\",\n    \"postcode\": \"67890\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/signup",
+              "host": [
+                "{{SUPABASE_URL}}"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "signup"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Seller Registration (Signup)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ Seller registered and logged in successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{SELLER_EMAIL}}\",\n  \"password\": \"{{SELLER_PASSWORD}}\",\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Smith\",\n  \"full_name\": \"Jane Smith\",\n  \"date_of_birth\": \"1985-05-20\",\n  \"country_code\": \"+971\",\n  \"phone_number\": \"507654321\",\n  \"collection_address\": {\n    \"address\": \"789 Seller Street, Shop 5\",\n    \"town_city\": \"Sharjah\",\n    \"postcode\": \"54321\"\n  },\n  \"delivery_address\": {\n    \"address\": \"789 Seller Street, Shop 5\",\n    \"town_city\": \"Sharjah\",\n    \"postcode\": \"54321\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/signup",
+              "host": [
+                "{{SUPABASE_URL}}"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "signup"
+              ]
+            }
+          }
+        },
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"date_of_birth\": \"1990-01-15\",\n  \"country_code\": \"+971\",\n  \"phone_number\": \"501234567\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/signup",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Buyer Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ Buyer logged in successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{BUYER_EMAIL}}\",\n  \"password\": \"{{BUYER_PASSWORD}}\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["auth", "v1", "token"],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Seller Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ Seller logged in successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{SELLER_EMAIL}}\",\n  \"password\": \"{{SELLER_PASSWORD}}\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["auth", "v1", "token"],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send Password Reset OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.otp) {",
+                  "        pm.collectionVariables.set('OTP_CODE', response.otp);",
+                  "        console.log('✅ OTP sent successfully:', response.otp);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{BUYER_EMAIL}}\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/send-otp",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "send-otp"]
+            }
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{BUYER_EMAIL}}\",\n  \"otp\": \"{{OTP_CODE}}\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/verify-otp",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "verify-otp"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password with OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{BUYER_EMAIL}}\",\n  \"otp\": \"{{OTP_CODE}}\",\n  \"new_password\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/reset-password-otp",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "reset-password-otp"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Profile Management",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/update-profile",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "update-profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile (JSON)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"phone_number\": \"501234567\",\n  \"country_code\": \"+971\",\n  \"date_of_birth\": \"1990-01-15\",\n  \"gender\": \"male\",\n  \"username\": \"johndoe123\",\n  \"user_description\": \"Tech enthusiast and marketplace user\",\n  \"full_name\": \"John Doe\",\n  \"collection_address\": {\n    \"address\": \"123 Main Street, Building A, Apt 101\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  },\n  \"delivery_address\": {\n    \"address\": \"456 Secondary Street, Building B, Apt 202\",\n    \"town_city\": \"Abu Dhabi\",\n    \"postcode\": \"54321\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/update-profile",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "update-profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile with Image Upload (Fixed)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "profileData",
+                  "value": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"phone_number\": \"501234567\",\n  \"country_code\": \"+971\",\n  \"date_of_birth\": \"1990-01-15\",\n  \"gender\": \"male\",\n  \"username\": \"johndoe_updated\",\n  \"user_description\": \"Updated profile with image\",\n  \"full_name\": \"John Doe\",\n  \"collection_address\": {\n    \"address\": \"456 Updated Street, Building B, Apt 202\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"54321\"\n  },\n  \"delivery_address\": {\n    \"address\": \"789 Secondary Address, Villa 3\",\n    \"town_city\": \"Abu Dhabi\",\n    \"postcode\": \"67890\"\n  }\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "profile_image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/update-profile",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "update-profile"]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"currentpassword123\",\n  \"new_password\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/change-password",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "Get Locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/locations?country=UAE&active=true",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "locations"],
+              "query": [
+                {
+                  "key": "country",
+                  "value": "UAE"
+                },
+                {
+                  "key": "active",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notification Settings",
+      "item": [
+        {
+          "name": "Get Notification Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/notification-settings",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "notification-settings"]
+            }
+          }
+        },
+        {
+          "name": "Update Notification Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"general_notifications\": true,\n  \"email_notifications\": true,\n  \"message_notifications\": false,\n  \"payment_notifications\": true,\n  \"update_notifications\": false\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/notification-settings",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "notification-settings"]
+            }
+          }
+        },
+        {
+          "name": "Create Notification Settings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"general_notifications\": true,\n  \"email_notifications\": true,\n  \"message_notifications\": true,\n  \"payment_notifications\": true,\n  \"update_notifications\": true\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/notification-settings",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "notification-settings"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Products",
+      "item": [
+        {
+          "name": "Get Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products?action=categories",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "categories"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Sub Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products?action=sub_categories&category_id=1",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "sub_categories"
+                },
+                {
+                  "key": "category_id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products?action=list&limit=20",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products?action=search&q=shirt&category_id=1&min_price=10&max_price=100&condition=new",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "search"
+                },
+                {
+                  "key": "q",
+                  "value": "shirt"
+                },
+                {
+                  "key": "category_id",
+                  "value": "1"
+                },
+                {
+                  "key": "min_price",
+                  "value": "10"
+                },
+                {
+                  "key": "max_price",
+                  "value": "100"
+                },
+                {
+                  "key": "condition",
+                  "value": "new"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products?action=detail&id={{PRODUCT_ID}}",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "detail"
+                },
+                {
+                  "key": "id",
+                  "value": "{{PRODUCT_ID}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Product (Sell Item) - No Pickup Address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('PRODUCT_ID', response.data.id);",
+                  "        console.log('✅ Product created with ID:', response.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"create\",\n  \"title\": \"Test Product\",\n  \"description\": \"A test product for API testing\",\n  \"price\": 100,\n  \"condition\": \"new\",\n  \"size\": \"M\",\n  \"color\": \"Blue\",\n  \"brand\": \"Test Brand\",\n  \"material\": \"Cotton\",\n  \"location\": \"Dubai\",\n  \"category_id\": 1,\n  \"sub_category_id\": 1,\n  \"images\": [\"https://example.com/image1.jpg\"],\n  \"pickup_address\": {\n    \"email\": \"seller@test.com\",\n    \"phone_number\": \"501234567\",\n    \"address\": \"123 Seller Street, Building A\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"]
+            }
+          }
+        },
+        {
+          "name": "Get My Listed Products (Seller)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products?action=listed",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "listed"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upload Product Images",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products?action=upload-images",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "upload-images"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Orders & Delivery",
+      "item": [
+        {
+          "name": "Create Order (24-Hour Delivery)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data) {",
+                  "        pm.collectionVariables.set('ORDER_ID', response.data.order.id);",
+                  "        if (response.data.delivery_request) {",
+                  "            pm.collectionVariables.set('DELIVERY_REQUEST_ID', response.data.delivery_request.id);",
+                  "        }",
+                  "        console.log('✅ 24h Order created - Seller review required');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{PRODUCT_ID}}\",\n  \"delivery_type\": \"24hour\",\n  \"shipping_address\": {\n    \"email\": \"buyer@test.com\",\n    \"phone_number\": \"+971501234567\",\n    \"address\": \"123 Test Street\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/orders?action=create",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "orders"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Order (Standard Delivery)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data) {",
+                  "        pm.collectionVariables.set('ORDER_ID', response.data.order.id);",
+                  "        console.log('✅ Standard Order created successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{PRODUCT_ID}}\",\n  \"delivery_type\": \"standard\",\n  \"shipping_address\": {\n    \"email\": \"buyer@test.com\",\n    \"phone_number\": \"+971501234567\",\n    \"address\": \"123 Test Street\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/orders?action=create",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "orders"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Buyer Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/orders?action=list",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "orders"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Seller Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/orders?action=seller-orders",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "orders"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "seller-orders"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Order Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/orders?action=detail&id={{ORDER_ID}}",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "orders"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "detail"
+                },
+                {
+                  "key": "id",
+                  "value": "{{ORDER_ID}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Order Status (Seller)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{ORDER_ID}}\",\n  \"status\": \"shipped\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/orders?action=update-status",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "orders"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "update-status"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔑 Seller Delivery Management",
+      "item": [
+        {
+          "name": "List Seller Delivery Requests",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data && response.data.length > 0) {",
+                  "        pm.collectionVariables.set('DELIVERY_REQUEST_ID', response.data[0].id);",
+                  "        console.log('✅ Seller delivery request ID set:', response.data[0].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/seller-delivery-requests?action=list&status=pending",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "seller-delivery-requests"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                },
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Delivery Request (Seller - 1 Hour Window)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_request_id\": \"{{DELIVERY_REQUEST_ID}}\",\n  \"seller_notes\": \"Approved - I can deliver within 24 hours\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/seller-delivery-requests?action=approve",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "seller-delivery-requests"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "approve"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reject Delivery Request (Seller)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_request_id\": \"{{DELIVERY_REQUEST_ID}}\",\n  \"seller_notes\": \"Sorry, cannot provide 24h delivery at this time\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/seller-delivery-requests?action=reject",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "seller-delivery-requests"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "reject"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Seller Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/seller-delivery-requests?action=stats",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "seller-delivery-requests"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "stats"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notifications",
+      "item": [
+        {
+          "name": "Get All Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/notifications-all?action=list&limit=50",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "notifications-all"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Unread Notification Count",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/notifications-all?action=unread-count",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "notifications-all"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "unread-count"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notification_id\": \"notification-id-here\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/notifications-all?action=read",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "notifications-all"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "read"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark All Notifications as Read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"read_all\": true\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/notifications-all?action=read",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "notifications-all"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "read"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notification_id\": \"notification-id-here\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/notifications-all?action=delete",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "notifications-all"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "delete"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 Conversations & Messaging",
+      "item": [
+        {
+          "name": "Get Inbox (Conversations List)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/conversations?action=inbox",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "conversations"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "inbox"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Conversation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('CONVERSATION_ID', response.data.id);",
+                  "        console.log('✅ Conversation created with ID:', response.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seller_id\": \"seller-user-id-here\",\n  \"product_id\": \"{{PRODUCT_ID}}\",\n  \"type\": \"chat\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/conversations?action=create",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "conversations"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/conversations?action=messages&conversation_id={{CONVERSATION_ID}}&limit=50",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "conversations"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "messages"
+                },
+                {
+                  "key": "conversation_id",
+                  "value": "{{CONVERSATION_ID}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send Text Message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('MESSAGE_ID', response.data.id);",
+                  "        console.log('✅ Message sent with ID:', response.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversation_id\": \"{{CONVERSATION_ID}}\",\n  \"content\": \"Hello! I'm interested in your product.\",\n  \"message_type\": \"text\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/conversations?action=send",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "conversations"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "send"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send Offer Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversation_id\": \"{{CONVERSATION_ID}}\",\n  \"content\": \"I'd like to make an offer\",\n  \"message_type\": \"offer\",\n  \"offer_amount\": 80\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/conversations?action=send",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "conversations"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "send"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Respond to Offer (Accept)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message_id\": \"{{MESSAGE_ID}}\",\n  \"response\": \"accepted\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/conversations?action=respond-offer",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "conversations"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "respond-offer"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Respond to Offer (Reject)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message_id\": \"{{MESSAGE_ID}}\",\n  \"response\": \"rejected\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/conversations?action=respond-offer",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "conversations"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "respond-offer"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "❤️ Wishlist",
+      "item": [
+        {
+          "name": "Get Wishlist",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/wishlist",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "wishlist"]
+            }
+          }
+        },
+        {
+          "name": "Add to Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{PRODUCT_ID}}\",\n  \"isWishlist\": true\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/wishlist",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "wishlist"]
+            }
+          }
+        },
+        {
+          "name": "Remove from Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{PRODUCT_ID}}\",\n  \"isWishlist\": false\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/wishlist",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "wishlist"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔄 Complete Enhanced Flow Test",
+      "item": [
+        {
+          "name": "1. User Registration with Required Fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ User registered successfully with required signup fields');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\",\n  \"date_of_birth\": \"1995-06-15\",\n  \"country_code\": \"+971\",\n  \"phone_number\": \"501234567\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/signup",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "signup"]
+            }
+          }
+        },
+        {
+          "name": "2. Complete Profile Setup (All Required Fields)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\",\n  \"phone_number\": \"501234567\",\n  \"country_code\": \"+971\",\n  \"date_of_birth\": \"1995-06-15\",\n  \"gender\": \"male\",\n  \"username\": \"testuser123\",\n  \"user_description\": \"New marketplace user\",\n  \"full_name\": \"Test User\",\n  \"collection_address\": {\n    \"address\": \"123 Test Street, Building 1\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  },\n  \"delivery_address\": {\n    \"address\": \"456 Test Avenue, Building 2\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/update-profile",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "update-profile"]
+            }
+          }
+        },
+        {
+          "name": "3. Setup Notification Preferences",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"general_notifications\": true,\n  \"email_notifications\": true,\n  \"message_notifications\": true,\n  \"payment_notifications\": true,\n  \"update_notifications\": false\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/notification-settings",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "notification-settings"]
+            }
+          }
+        },
+        {
+          "name": "4. Seller Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ Seller logged in successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{SELLER_EMAIL}}\",\n  \"password\": \"{{SELLER_PASSWORD}}\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["auth", "v1", "token"],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "5. Create Product with Pickup Address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('PRODUCT_ID', response.data.id);",
+                  "        console.log('✅ Product created with pickup address');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"create\",\n  \"title\": \"Test Product for 24h Delivery\",\n  \"description\": \"A test product for 24-hour delivery flow\",\n  \"price\": 100,\n  \"condition\": \"new\",\n  \"size\": \"M\",\n  \"color\": \"Blue\",\n  \"brand\": \"Test Brand\",\n  \"material\": \"Cotton\",\n  \"location\": \"Dubai\",\n  \"category_id\": 1,\n  \"images\": [\"https://example.com/image1.jpg\"],\n  \"pickup_address\": {\n    \"email\": \"seller@test.com\",\n    \"phone_number\": \"501234567\",\n    \"address\": \"123 Seller Street, Building A\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/products",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "products"]
+            }
+          }
+        },
+        {
+          "name": "6. Buyer Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ Buyer logged in successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{BUYER_EMAIL}}\",\n  \"password\": \"{{BUYER_PASSWORD}}\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["auth", "v1", "token"],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "7. Create 24-Hour Delivery Order (Seller Approval Required)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data) {",
+                  "        pm.collectionVariables.set('ORDER_ID', response.data.order.id);",
+                  "        if (response.data.delivery_request) {",
+                  "            pm.collectionVariables.set('DELIVERY_REQUEST_ID', response.data.delivery_request.id);",
+                  "        }",
+                  "        console.log('✅ 24h Order created - Seller has 1 hour to approve');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{PRODUCT_ID}}\",\n  \"delivery_type\": \"24hour\",\n  \"shipping_address\": {\n    \"email\": \"buyer@test.com\",\n    \"phone_number\": \"+971501234567\",\n    \"address\": \"123 Test Street\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/orders?action=create",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "orders"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "8. Seller Login (Switch Back)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.session && response.session.access_token) {",
+                  "        pm.collectionVariables.set('ACCESS_TOKEN', response.session.access_token);",
+                  "        pm.collectionVariables.set('USER_ID', response.user.id);",
+                  "        console.log('✅ Seller logged in to approve delivery');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{SELLER_EMAIL}}\",\n  \"password\": \"{{SELLER_PASSWORD}}\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["auth", "v1", "token"],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "9. Seller Approve 24-Hour Delivery (Within 1 Hour)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_request_id\": \"{{DELIVERY_REQUEST_ID}}\",\n  \"seller_notes\": \"Approved for testing flow - can deliver within 24h\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/functions/v1/seller-delivery-requests?action=approve",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["functions", "v1", "seller-delivery-requests"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "approve"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "10. Check Notifications (Buyer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_ANON_KEY}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{BUYER_EMAIL}}\",\n  \"password\": \"{{BUYER_PASSWORD}}\"\n}"
+            },
+            "url": {
+              "raw": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+              "host": ["{{SUPABASE_URL}}"],
+              "path": ["auth", "v1", "token"],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

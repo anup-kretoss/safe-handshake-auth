@@ -21,6 +21,7 @@ import InboxPage from "./pages/InboxPage";
 import ChatPage from "./pages/ChatPage";
 import OrdersPage from "./pages/OrdersPage";
 import SellerDashboard from "./pages/SellerDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotificationsPage from "./pages/NotificationsPage";
 import NotFound from "./pages/NotFound";
 
@@ -63,6 +64,9 @@ function AppContent() {
       } />
       <Route path="/seller-dashboard" element={
         <ProtectedRoute><SellerDashboard /></ProtectedRoute>
+      } />
+      <Route path="/admin-dashboard" element={
+        <ProtectedRoute><AdminDashboard /></ProtectedRoute>
       } />
       <Route path="/notifications" element={
         <ProtectedRoute><NotificationsPage /></ProtectedRoute>

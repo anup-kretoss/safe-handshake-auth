@@ -35,7 +35,7 @@ serve(async (req) => {
     if (action === 'list') {
       const { data, error } = await adminClient
         .from('delivery_requests')
-        .select('*, orders(*, products(id, title, images, price))')
+        .select('*, orders(*, products(id, title, images, price)), admin_delivery_requests(*)')
         .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
@@ -44,20 +44,10 @@ serve(async (req) => {
       // Auto-expire pending requests past their expiry
       const now = new Date();
       for (const dr of (data || [])) {
-        if (dr.status === 'pending' && new Date(dr.expires_at) < now) {
-          await adminClient.from('delivery_requests').update({ status: 'expired' }).eq('id', dr.id);
-          // Fallback order to standard delivery
-          if (dr.order_id) {
-            await adminClient.from('orders').update({ delivery_type: 'standard', delivery_price: 20 }).eq('id', dr.order_id);
-          }
-          // Notify buyer
-          await adminClient.from('notifications').insert({
-            user_id: dr.buyer_id,
-            type: 'delivery_expired',
-            title: 'Delivery Request Expired',
-            message: '24-hour delivery request expired. Standard delivery will be used.',
-            data: { delivery_request_id: dr.id, order_id: dr.order_id },
-          });
+        if (dr.admin_status === 'pending' && dr.admin_delivery_requests?.[0] && new Date(dr.admin_delivery_requests[0].expires_at) < now) {
+          // Handle expiration through admin system
+          await adminClient.rpc('expire_admin_delivery_requests');
+          dr.admin_status = 'expired';
           dr.status = 'expired';
         }
       }
@@ -65,88 +55,20 @@ serve(async (req) => {
       return json({ success: true, data });
     }
 
-    // ---- APPROVE DELIVERY REQUEST (Seller only) ----
+    // ---- APPROVE DELIVERY REQUEST (DEPRECATED - Now handled by admin) ----
     if (action === 'approve') {
-      if (req.method !== 'POST') return json({ success: false, message: 'POST required' }, 405);
-
-      const body = await req.json();
-      const { delivery_request_id } = body;
-      if (!delivery_request_id) return json({ success: false, message: 'delivery_request_id required' }, 400);
-
-      const { data: drs, error: drError } = await adminClient
-        .from('delivery_requests')
-        .select('*')
-        .eq('id', delivery_request_id);
-
-      if (drError) throw drError;
-      const dr = drs?.[0];
-      if (!dr) return json({ success: false, message: 'Delivery request not found' }, 404);
-      if (dr.seller_id !== user.id) return json({ success: false, message: 'Only seller can approve' }, 403);
-      if (dr.status !== 'pending') return json({ success: false, message: `Cannot approve: status is ${dr.status}` }, 400);
-
-      // Check if expired
-      if (new Date(dr.expires_at) < new Date()) {
-        await adminClient.from('delivery_requests').update({ status: 'expired' }).eq('id', dr.id);
-        if (dr.order_id) {
-          await adminClient.from('orders').update({ delivery_type: 'standard', delivery_price: 20 }).eq('id', dr.order_id);
-        }
-        return json({ success: false, message: 'Delivery request has expired' }, 400);
-      }
-
-      // Approve
-      await adminClient.from('delivery_requests').update({ status: 'approved' }).eq('id', dr.id);
-      if (dr.order_id) {
-        await adminClient.from('orders').update({ status: 'approved' }).eq('id', dr.order_id);
-      }
-
-      // Notify buyer
-      await adminClient.from('notifications').insert({
-        user_id: dr.buyer_id,
-        type: 'delivery_approved',
-        title: '24-Hour Delivery Approved!',
-        message: 'The seller has approved your 24-hour delivery request. You can now complete payment.',
-        data: { delivery_request_id: dr.id, order_id: dr.order_id },
-      });
-
-      return json({ success: true, message: '24-hour delivery approved', data: { delivery_request_id: dr.id, order_id: dr.order_id } });
+      return json({ 
+        success: false, 
+        message: '24-hour delivery requests are now handled by admin approval. Please wait for admin review.' 
+      }, 400);
     }
 
-    // ---- DECLINE DELIVERY REQUEST (Seller only) ----
+    // ---- DECLINE DELIVERY REQUEST (DEPRECATED - Now handled by admin) ----
     if (action === 'decline') {
-      if (req.method !== 'POST') return json({ success: false, message: 'POST required' }, 405);
-
-      const body = await req.json();
-      const { delivery_request_id } = body;
-      if (!delivery_request_id) return json({ success: false, message: 'delivery_request_id required' }, 400);
-
-      const { data: drs, error: drError } = await adminClient
-        .from('delivery_requests')
-        .select('*')
-        .eq('id', delivery_request_id);
-
-      if (drError) throw drError;
-      const dr = drs?.[0];
-      if (!dr) return json({ success: false, message: 'Delivery request not found' }, 404);
-      if (dr.seller_id !== user.id) return json({ success: false, message: 'Only seller can decline' }, 403);
-      if (dr.status !== 'pending') return json({ success: false, message: `Cannot decline: status is ${dr.status}` }, 400);
-
-      // Decline
-      await adminClient.from('delivery_requests').update({ status: 'declined' }).eq('id', dr.id);
-      // Fallback to standard delivery
-      if (dr.order_id) {
-        await adminClient.from('orders').update({ delivery_type: 'standard', delivery_price: 20 }).eq('id', dr.order_id);
-      }
-
-      // Notify buyer
-      await adminClient.from('notifications').insert({
-        user_id: dr.buyer_id,
-        type: 'delivery_declined',
-        title: '24-Hour Delivery Declined',
-        message: 'The seller has declined your 24-hour delivery request. Standard delivery will be used.',
-        data: { delivery_request_id: dr.id, order_id: dr.order_id },
-      });
-
-      return json({ success: true, message: 'Delivery request declined, order changed to standard delivery' });
+      return json({ 
+        success: false, 
+        message: '24-hour delivery requests are now handled by admin approval. Please wait for admin review.' 
+      }, 400);
     }
 
     // ---- CHECK STATUS ----

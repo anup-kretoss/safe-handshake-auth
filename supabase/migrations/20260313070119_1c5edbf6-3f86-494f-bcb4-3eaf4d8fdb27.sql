@@ -5,7 +5,7 @@ ALTER TABLE public.products
   ADD COLUMN IF NOT EXISTS service_fee_percentage numeric NOT NULL DEFAULT 12.5;
 
 -- Create orders table
-CREATE TABLE public.orders (
+CREATE TABLE IF NOT EXISTS public.orders (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   buyer_id uuid NOT NULL,
   product_id uuid NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
@@ -19,7 +19,7 @@ CREATE TABLE public.orders (
 );
 
 -- Create delivery_requests table
-CREATE TABLE public.delivery_requests (
+CREATE TABLE IF NOT EXISTS public.delivery_requests (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id uuid REFERENCES public.orders(id) ON DELETE CASCADE,
   product_id uuid NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
@@ -32,7 +32,7 @@ CREATE TABLE public.delivery_requests (
 );
 
 -- Create conversations table
-CREATE TABLE public.conversations (
+CREATE TABLE IF NOT EXISTS public.conversations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id uuid REFERENCES public.products(id) ON DELETE SET NULL,
   buyer_id uuid NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE public.conversations (
 );
 
 -- Create messages table
-CREATE TABLE public.messages (
+CREATE TABLE IF NOT EXISTS public.messages (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id uuid NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
   sender_id uuid NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE public.messages (
 );
 
 -- Create notifications table
-CREATE TABLE public.notifications (
+CREATE TABLE IF NOT EXISTS public.notifications (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL,
   type varchar NOT NULL,
@@ -167,7 +167,11 @@ CREATE POLICY "System can insert notifications" ON public.notifications
 
 -- Storage bucket for product images
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES ('product-images', 'product-images', true, 10485760, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+VALUES ('product-images', 'product-images', true, 10485760, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+ON CONFLICT (id) DO UPDATE SET
+  public = EXCLUDED.public,
+  file_size_limit = EXCLUDED.file_size_limit,
+  allowed_mime_types = EXCLUDED.allowed_mime_types;
 
 -- Storage policies
 CREATE POLICY "Anyone can view product images" ON storage.objects

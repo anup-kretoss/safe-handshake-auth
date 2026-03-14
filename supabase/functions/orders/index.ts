@@ -118,7 +118,7 @@ serve(async (req) => {
 
         if (orderError) throw orderError;
 
-        // Create delivery request with 1-hour expiry
+        // Create delivery request with seller approval requirement (NOT admin)
         const { data: deliveryReq, error: drError } = await adminClient
           .from('delivery_requests')
           .insert({
@@ -127,40 +127,49 @@ serve(async (req) => {
             buyer_id: user.id,
             seller_id: product.seller_id,
             status: 'pending',
+            requires_admin_approval: false, // SELLER APPROVAL ONLY
+            admin_status: 'not_required',
+            expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour for seller
           })
           .select()
           .single();
 
         if (drError) throw drError;
 
-        // Create notification for seller
+        // Create notification for buyer about seller review
         await adminClient.from('notifications').insert({
-          user_id: product.seller_id,
+          user_id: user.id,
           type: 'delivery_request',
-          title: '24-Hour Delivery Requested',
-          message: `A buyer has requested 24-hour delivery for your product. You have 1 hour to approve or decline.`,
+          title: '24-Hour Delivery Request Submitted',
+          message: `Your 24-hour delivery request has been sent to the seller. You'll be notified within 1 hour.`,
           data: { order_id: order.id, delivery_request_id: deliveryReq.id, product_id },
         });
 
-        // Send FCM push notification to seller
-        try {
-          const { data: sellerProfile } = await adminClient
-            .from('profiles')
-            .select('fcm_token')
-            .eq('user_id', product.seller_id)
-            .single();
+        // Create notification for seller
+        await adminClient.from('notifications').insert({
+          user_id: product.seller_id,
+          type: 'seller_delivery_request',
+          title: 'New 24-Hour Delivery Request',
+          message: `A buyer wants 24-hour delivery for your item. Please respond within 1 hour or it will switch to standard delivery.`,
+          data: { 
+            order_id: order.id, 
+            delivery_request_id: deliveryReq.id, 
+            product_id,
+            buyer_id: user.id
+          },
+        });
 
-          if (sellerProfile?.fcm_token) {
-            await fetch(`${supabaseUrl}/functions/v1/send-notification`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${serviceRoleKey}` },
-              body: JSON.stringify({
-                targetUserId: product.seller_id,
-                title: '24-Hour Delivery Requested',
-                message: 'A buyer has requested 24-hour delivery. You have 1 hour to respond.',
-              }),
-            });
-          }
+        // Send FCM notification to seller
+        try {
+          await fetch(`${supabaseUrl}/functions/v1/send-notification`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${serviceRoleKey}` },
+            body: JSON.stringify({
+              targetUserId: product.seller_id,
+              title: 'New 24-Hour Delivery Request',
+              message: 'A buyer wants 24-hour delivery. Please respond within 1 hour.',
+            }),
+          });
         } catch (_) { /* non-critical */ }
 
         return json({
@@ -168,7 +177,8 @@ serve(async (req) => {
           data: {
             order,
             delivery_request: deliveryReq,
-            message: '24-hour delivery request sent to seller. Waiting for approval (1 hour window).',
+            message: '24-hour delivery request sent to seller. You will be notified within 1 hour.',
+            requires_seller_approval: true,
           },
         });
       }

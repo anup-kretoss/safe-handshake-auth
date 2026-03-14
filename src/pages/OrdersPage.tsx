@@ -121,34 +121,40 @@ export default function OrdersPage() {
                                 </div>
                             </div>
 
-                            <div className="px-3 py-2 bg-muted/30 flex items-center justify-between">
-                                <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                                    <Clock className="h-3 w-3" />
-                                    {new Date(order.created_at).toLocaleDateString()}
-                                </div>
+                                <div className="px-3 py-2 bg-muted/30 flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                                        <Clock className="h-3 w-3" />
+                                        {new Date(order.created_at).toLocaleDateString()}
+                                    </div>
 
-                                <div className="flex gap-2">
-                                    {/* Seller Actions */}
-                                    {tab === 'selling' && order.status === 'paid' && (
-                                        <button
-                                            onClick={() => updateStatusMutation.mutate({ orderId: order.id, status: 'shipped' })}
-                                            className="px-3 py-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-lg"
-                                        >
-                                            Mark Shipped
-                                        </button>
-                                    )}
+                                    <div className="flex gap-2">
+                                        {/* Show admin review status for 24h delivery */}
+                                        {order.delivery_type === '24hour' && order.status === 'pending' && (
+                                            <div className="px-2 py-1 bg-orange-100 text-orange-700 text-[10px] font-bold rounded">
+                                                Admin Review
+                                            </div>
+                                        )}
 
-                                    {/* Approval Flow for 24H Delivery */}
-                                    {tab === 'selling' && order.status === 'pending' && order.delivery_type === '24hour' && (
-                                        <button
-                                            onClick={() => approveDeliveryMutation.mutate(order.id)}
-                                            className="px-3 py-1 bg-green-500 text-white text-[10px] font-bold rounded-lg"
-                                        >
-                                            Approve 24H Delivery
-                                        </button>
-                                    )}
+                                        {/* Seller Actions - Only for approved orders */}
+                                        {tab === 'selling' && order.status === 'approved' && (
+                                            <button
+                                                onClick={() => updateStatusMutation.mutate({ orderId: order.id, status: 'shipped' })}
+                                                className="px-3 py-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-lg"
+                                            >
+                                                Mark Shipped
+                                            </button>
+                                        )}
+
+                                        {tab === 'selling' && order.status === 'paid' && (
+                                            <button
+                                                onClick={() => updateStatusMutation.mutate({ orderId: order.id, status: 'shipped' })}
+                                                className="px-3 py-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-lg"
+                                            >
+                                                Mark Shipped
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
                         </div>
                     ))
                 )}
