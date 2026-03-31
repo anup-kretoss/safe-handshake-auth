@@ -1,0 +1,347 @@
+{
+  "info": {
+    "name": "Souk IT — Mamo Payment",
+    "_postman_id": "souk-it-mamo-payment-v1",
+    "description": "Full Mamo payment integration test collection for Souk IT.\n\nSetup:\n1. Run '01 - Login' first\n2. The access_token is auto-saved to {{access_token}} variable\n3. Run requests in order",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "https://ciywuwcwixbvmsezppya.supabase.co", "type": "string" },
+    { "key": "anon_key", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpeXd1d2N3aXhidm1zZXpwcHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDAyOTcsImV4cCI6MjA4NzY3NjI5N30.1b-Y6kVbMA-AjpLLmyl-khzMVZx2H3ktSkgla3eK49k", "type": "string" },
+    { "key": "access_token", "value": "", "type": "string" },
+    { "key": "order_id", "value": "", "type": "string" },
+    { "key": "product_id", "value": "9003c7bc-1010-4594-83a8-6609f496c2b9", "type": "string" },
+    { "key": "transaction_id", "value": "", "type": "string" },
+    { "key": "payment_link_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "01 - Login (get access_token)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "if (res.access_token) {",
+              "  pm.collectionVariables.set('access_token', res.access_token);",
+              "  console.log('✅ access_token saved');",
+              "} else {",
+              "  console.error('❌ Login failed:', JSON.stringify(res));",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"anupkretoss@gmail.com\",\n  \"password\": \"YOUR_PASSWORD_HERE\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "v1", "token"],
+          "query": [{ "key": "grant_type", "value": "password" }]
+        },
+        "description": "Login to get access_token. Token is auto-saved to collection variable."
+      }
+    },
+    {
+      "name": "02 - Create Order (Standard Delivery)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "if (res.success && res.data) {",
+              "  const orderId = res.data.order?.id || res.data.id;",
+              "  if (orderId) {",
+              "    pm.collectionVariables.set('order_id', orderId);",
+              "    console.log('✅ order_id saved:', orderId);",
+              "  }",
+              "} else {",
+              "  console.error('❌ Create order failed:', JSON.stringify(res));",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"delivery_type\": \"standard\",\n  \"shipping_address\": {\n    \"email\": \"anupkretoss@gmail.com\",\n    \"phone_number\": \"9801234567\",\n    \"address\": \"123 Test Street\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"00000\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/functions/v1/orders?action=create",
+          "host": ["{{base_url}}"],
+          "path": ["functions", "v1", "orders"],
+          "query": [{ "key": "action", "value": "create" }]
+        },
+        "description": "Creates a standard delivery order. order_id is auto-saved.\n\nExpected: { success: true, data: { order: { id, status: 'pending', ... }, message: 'Order created. Proceed to payment.' } }\n\nStatus is 'pending' — NOT paid yet. Payment happens in step 03."
+      }
+    },
+    {
+      "name": "02b - Create Order (24h Delivery)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "if (res.success && res.data) {",
+              "  const orderId = res.data.order?.id || res.data.id;",
+              "  if (orderId) {",
+              "    pm.collectionVariables.set('order_id', orderId);",
+              "    console.log('✅ 24h order_id saved:', orderId);",
+              "  }",
+              "} else {",
+              "  console.error('❌ Create 24h order failed:', JSON.stringify(res));",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"delivery_type\": \"24hour\",\n  \"shipping_address\": {\n    \"email\": \"anupkretoss@gmail.com\",\n    \"phone_number\": \"9801234567\",\n    \"address\": \"123 Test Street\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"00000\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/functions/v1/orders?action=create",
+          "host": ["{{base_url}}"],
+          "path": ["functions", "v1", "orders"],
+          "query": [{ "key": "action", "value": "create" }]
+        },
+        "description": "Creates a 24h delivery order. Seller must approve/reject before payment link can be created.\n\nExpected: { success: true, data: { requires_seller_approval: true, order: { status: 'pending' } } }"
+      }
+    },
+    {
+      "name": "03 - Create Mamo Payment Link",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "if (res.success && res.data?.payment_url) {",
+              "  pm.collectionVariables.set('payment_link_id', res.data.mamo_link_id || '');",
+              "  console.log('✅ Payment URL:', res.data.payment_url);",
+              "  console.log('✅ mamo_link_id saved:', res.data.mamo_link_id);",
+              "  console.log('👉 Open this URL in browser to pay:', res.data.payment_url);",
+              "} else {",
+              "  console.error('❌ Create link failed:', JSON.stringify(res));",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"{{order_id}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/functions/v1/mamo-payment?action=create-link",
+          "host": ["{{base_url}}"],
+          "path": ["functions", "v1", "mamo-payment"],
+          "query": [{ "key": "action", "value": "create-link" }]
+        },
+        "description": "Creates a Mamo payment link for the order.\n\nRules:\n- Standard order (status: pending) → returns payment_url immediately\n- 24h order (delivery_request: pending) → returns 400 'Waiting for seller'\n- 24h order (delivery_request: approved) → returns payment_url at AED 40\n- 24h order (delivery_request: rejected/expired) → auto-switches to AED 20, returns payment_url\n\nExpected success:\n{\n  success: true,\n  data: {\n    order_id: '...',\n    payment_url: 'https://sandbox.dev.business.mamopay.com/pay/MB-LINK-...',\n    mamo_link_id: 'MB-LINK-...',\n    item_price: 112.5,\n    delivery_price: 20,\n    total_price: 132.5,\n    requires_payment: true\n  }\n}\n\nOpen payment_url in browser and pay with:\nCard: 4242 4242 4242 4242\nCVV: 123\nExpiry: 01/28"
+      }
+    },
+    {
+      "name": "03b - Create Link (24h — blocked while pending)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"{{order_id}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/functions/v1/mamo-payment?action=create-link",
+          "host": ["{{base_url}}"],
+          "path": ["functions", "v1", "mamo-payment"],
+          "query": [{ "key": "action", "value": "create-link" }]
+        },
+        "description": "Test: call create-link on a 24h order while delivery_request is still 'pending'.\n\nExpected 400:\n{\n  success: false,\n  message: 'Waiting for seller to approve or reject the 24-hour delivery request.',\n  data: { delivery_request_status: 'pending', remaining_seconds: 3542 }\n}"
+      }
+    },
+    {
+      "name": "04 - Verify Payment (after paying on Mamo page)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "if (res.success) {",
+              "  console.log('✅ Payment verified! Order status:', res.data?.status);",
+              "  console.log('✅ Total paid: AED', res.data?.total_price);",
+              "} else {",
+              "  console.error('❌ Verify failed:', res.message);",
+              "  console.log('Order NOT marked as paid — Mamo did not confirm capture');",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"{{order_id}}\",\n  \"transaction_id\": \"{{transaction_id}}\",\n  \"payment_link_id\": \"{{payment_link_id}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/functions/v1/mamo-payment?action=verify",
+          "host": ["{{base_url}}"],
+          "path": ["functions", "v1", "mamo-payment"],
+          "query": [{ "key": "action", "value": "verify" }]
+        },
+        "description": "Verifies payment with Mamo's charges API.\n\nAfter paying on the Mamo page, Mamo redirects to:\n/payment-callback?status=captured&transactionId=MPB-CHRG-XXX&paymentLinkId=MB-LINK-XXX\n\nCopy transactionId → set {{transaction_id}} variable\nCopy paymentLinkId → set {{payment_link_id}} variable\n\nThis endpoint re-calls Mamo's API to confirm status === 'captured'.\nOnly then marks order as 'paid'.\n\nExpected success:\n{\n  success: true,\n  data: { status: 'paid', total_price: 132.5, ... },\n  message: 'Payment completed successfully.'\n}\n\nExpected failure (not captured):\n{\n  success: false,\n  message: 'Payment was not successful. Your order has not been updated.'\n}"
+      }
+    },
+    {
+      "name": "05 - Simulate Mamo Webhook (captured)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"captured\",\n  \"id\": \"{{transaction_id}}\",\n  \"payment_link_id\": \"{{payment_link_id}}\",\n  \"amount\": 132.5,\n  \"currency\": \"AED\",\n  \"custom_data\": {\n    \"order_id\": \"{{order_id}}\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/functions/v1/mamo-webhook",
+          "host": ["{{base_url}}"],
+          "path": ["functions", "v1", "mamo-webhook"]
+        },
+        "description": "Simulates what Mamo sends to your webhook when payment is captured.\n\nNo auth header needed — Mamo calls this server-to-server.\n\nThe webhook will:\n1. Re-verify with Mamo's charges API\n2. Only if confirmed captured → mark order paid, notify seller+buyer, send emails\n\nExpected success:\n{\n  success: true,\n  message: 'Payment confirmed and order updated.'\n}\n\nExpected if not captured:\n{\n  success: false,\n  message: 'Payment not verified with Mamo API.'\n}\n\nRegister this webhook URL in Mamo sandbox dashboard:\nhttps://ciywuwcwixbvmsezppya.supabase.co/functions/v1/mamo-webhook"
+      }
+    },
+    {
+      "name": "05b - Simulate Mamo Webhook (failed)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"failed\",\n  \"id\": \"MPB-CHRG-FAILED123\",\n  \"payment_link_id\": \"{{payment_link_id}}\",\n  \"amount\": 132.5,\n  \"currency\": \"AED\",\n  \"custom_data\": {\n    \"order_id\": \"{{order_id}}\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/functions/v1/mamo-webhook",
+          "host": ["{{base_url}}"],
+          "path": ["functions", "v1", "mamo-webhook"]
+        },
+        "description": "Simulates a failed payment webhook from Mamo.\n\nExpected: order status stays 'pending_payment', no update.\n{\n  success: true,\n  message: 'Status \"failed\" received, no action taken.'\n}"
+      }
+    },
+    {
+      "name": "06 - Get Orders (check status)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/functions/v1/orders?action=list&type=bought",
+          "host": ["{{base_url}}"],
+          "path": ["functions", "v1", "orders"],
+          "query": [
+            { "key": "action", "value": "list" },
+            { "key": "type", "value": "bought" }
+          ]
+        },
+        "description": "Fetch buyer's orders to confirm status changed to 'paid'.\n\nAfter successful payment:\n- order.status should be 'paid'\n- products.is_sold should be true"
+      }
+    },
+    {
+      "name": "07 - Verify (already paid — idempotent)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"{{order_id}}\",\n  \"transaction_id\": \"{{transaction_id}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/functions/v1/mamo-payment?action=verify",
+          "host": ["{{base_url}}"],
+          "path": ["functions", "v1", "mamo-payment"],
+          "query": [{ "key": "action", "value": "verify" }]
+        },
+        "description": "Call verify again on an already-paid order.\n\nExpected idempotent response:\n{\n  success: true,\n  message: 'Payment already confirmed.'\n}"
+      }
+    },
+    {
+      "name": "08 - Create Link (already paid — should block)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"{{order_id}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/functions/v1/mamo-payment?action=create-link",
+          "host": ["{{base_url}}"],
+          "path": ["functions", "v1", "mamo-payment"],
+          "query": [{ "key": "action", "value": "create-link" }]
+        },
+        "description": "Try to create a payment link for an already-paid order.\n\nExpected 400:\n{\n  success: false,\n  message: 'This order is already paid.'\n}"
+      }
+    }
+  ]
+}

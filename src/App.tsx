@@ -24,6 +24,7 @@ import SellerDashboard from "./pages/SellerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotificationsPage from "./pages/NotificationsPage";
 import NotFound from "./pages/NotFound";
+import PaymentCallbackPage from "./pages/PaymentCallbackPage";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,7 @@ function AppContent() {
       <Route path="/notifications" element={
         <ProtectedRoute><NotificationsPage /></ProtectedRoute>
       } />
+      <Route path="/payment-callback" element={<PaymentCallbackPage />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

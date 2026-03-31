@@ -37,7 +37,7 @@ export default function ProductCard({ product }: Props) {
       <div className="mt-2 px-0.5">
         <p className="text-sm font-medium text-foreground truncate">{product.title}</p>
         <div className="flex items-center justify-between mt-0.5">
-          <p className="text-sm font-bold text-primary">${product.price}</p>
+          <p className="text-sm font-bold text-primary">AED {product.price}</p>
           {product.categories?.name && (
             <p className="text-[10px] text-muted-foreground">{product.categories.name}</p>
           )}

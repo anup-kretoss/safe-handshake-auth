@@ -196,13 +196,21 @@ serve(async (req) => {
         },
       });
 
-      // Send FCM notifications
-      await sendFCMNotifications(adminClient, supabaseUrl, serviceRoleKey, {
-        buyerId: adminRequest.delivery_requests.orders.buyer_id,
-        sellerId: adminRequest.delivery_requests.orders.products.seller_id,
-        title: '24-Hour Delivery Approved!',
-        message: 'Your delivery request has been approved.',
-      });
+      // Send FCM notifications (direct, no DB insert)
+      const buyerId = adminRequest.delivery_requests.orders.buyer_id;
+      const sellerId = adminRequest.delivery_requests.orders.products.seller_id;
+      for (const [uid, msg] of [[buyerId, 'Your delivery request has been approved. Tap to pay now.'], [sellerId, 'A delivery request has been approved by admin.']]) {
+        try {
+          const { data: fcmProfile } = await adminClient.from('profiles').select('fcm_token').eq('user_id', uid).maybeSingle();
+          if (fcmProfile?.fcm_token) {
+            await fetch(`${supabaseUrl}/functions/v1/notify-on-insert`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${serviceRoleKey}` },
+              body: JSON.stringify({ fcm_token: fcmProfile.fcm_token, title: '24-Hour Delivery Approved!', body: msg }),
+            });
+          }
+        } catch (_) { /* non-critical */ }
+      }
 
       return json({ 
         success: true, 

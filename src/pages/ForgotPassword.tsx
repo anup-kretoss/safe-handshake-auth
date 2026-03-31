@@ -40,7 +40,7 @@ export default function ForgotPassword() {
       });
       if (error) { toast.error('Failed to send OTP'); return false; }
       if (!data.success) { toast.error(data.message); return false; }
-      toast.success('OTP sent to your email!');
+      toast.success('OTP sent! Check your email inbox.');
       return true;
     } catch {
       toast.error('Something went wrong.');
@@ -68,7 +68,7 @@ export default function ForgotPassword() {
       });
       if (error) { toast.error('Failed to resend OTP'); return; }
       if (!data.success) { toast.error(data.message); return; }
-      toast.success('OTP resent to your email!');
+      toast.success('New OTP sent! Check your email inbox.');
       setResendCooldown(30);
     } catch {
       toast.error('Something went wrong.');
@@ -104,7 +104,7 @@ export default function ForgotPassword() {
         body: { email, reset_token: resetToken, new_password: newPassword },
       });
       if (error || !data.success) { toast.error(data?.message || 'Failed to reset password'); return; }
-      toast.success('Password updated successfully!');
+      toast.success('Password updated! A confirmation email has been sent.');
       navigate('/login');
     } catch {
       toast.error('Something went wrong.');

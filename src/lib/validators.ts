@@ -8,6 +8,12 @@ export const passwordSchema = z
   .regex(/[0-9]/, 'Must contain at least one number')
   .regex(/[^A-Za-z0-9]/, 'Must contain at least one special character');
 
+const addressSchema = z.object({
+  address: z.string().trim().min(1, 'Address is required').max(500),
+  town_city: z.string().trim().min(1, 'Town/City is required').max(100),
+  postcode: z.string().trim().min(1, 'Postcode is required').max(20),
+});
+
 export const registerSchema = z.object({
   firstName: z.string().trim().min(1, 'First name is required').max(100),
   lastName: z.string().trim().min(1, 'Last name is required').max(100),
@@ -17,6 +23,8 @@ export const registerSchema = z.object({
   phoneNumber: z.string().min(4, 'Phone number is required').max(20),
   password: passwordSchema,
   confirmPassword: z.string(),
+  collectionAddress: addressSchema,
+  deliveryAddress: addressSchema,
 }).refine(data => data.password === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],
@@ -46,6 +54,25 @@ export const updateProfileSchema = z.object({
   countryCode: z.string().optional(),
   phoneNumber: z.string().max(20).optional(),
   gender: z.string().optional(),
+  username: z.string().trim().max(50).optional(),
+  userDescription: z.string().trim().max(500).optional(),
+  collectionAddress: addressSchema.optional(),
+  deliveryAddress: addressSchema.optional(),
+});
+
+export const addressUpdateSchema = z.object({
+  type: z.enum(['pickup', 'delivery']),
+  address: z.string().trim().min(1, 'Address is required').max(500),
+  town_city: z.string().trim().min(1, 'Town/City is required').max(100),
+  postcode: z.string().trim().min(1, 'Postcode is required').max(20),
+});
+
+export const notificationSettingsSchema = z.object({
+  general_notifications: z.boolean(),
+  email_notifications: z.boolean(),
+  message_notifications: z.boolean(),
+  payment_notifications: z.boolean(),
+  update_notifications: z.boolean(),
 });
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
@@ -53,6 +80,8 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;
+export type AddressUpdateFormData = z.infer<typeof addressUpdateSchema>;
+export type NotificationSettingsFormData = z.infer<typeof notificationSettingsSchema>;
 
 export function getPasswordStrength(password: string): { score: number; label: string; color: string } {
   let score = 0;

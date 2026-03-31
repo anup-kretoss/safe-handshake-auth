@@ -1,0 +1,4121 @@
+{
+  "info": {
+    "_postman_id": "715f3899-8c41-4674-96a5-61bf2adc0252",
+    "name": "Souk IT Collection",
+    "description": "Complete API collection for Souk IT marketplace.\nBase URL: https://ciywuwcwixbvmsezppya.supabase.co/functions/v1\n\nNotifications: each item includes a 'product' field with title, description, actual_price, display_price, images.\nAddresses: multi-address arrays per type (pickup / delivery), each with a unique id.\n\niCarry Shipping (Section 13): Integrated with https://uae.icarry.com for shipment creation and tracking.\nSetup: supabase secrets set ICARRY_EMAIL=your@email.com ICARRY_PASSWORD=yourpassword",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51652295",
+    "_collection_link": "https://go.postman.co/collection/51652295-715f3899-8c41-4674-96a5-61bf2adc0252?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Register (Buyer)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "if(r.success&&r.session){pm.collectionVariables.set('token',r.session.access_token);pm.collectionVariables.set('buyer_token',r.session.access_token);}",
+                  "pm.test('Register success',()=>pm.expect(r.success).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"buyer@test.com\",\n  \"password\": \"Test1234!\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"Buyer\",\n  \"date_of_birth\": \"1995-06-15\",\n  \"country_code\": \"+971\",\n  \"phone_number\": \"501234567\",\n  \"collection_address\": {\"address\": \"123 Buyer Street\",\"town_city\": \"Dubai\",\"postcode\": \"12345\"},\n  \"delivery_address\": {\"address\": \"123 Buyer Street\",\"town_city\": \"Dubai\",\"postcode\": \"12345\"}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/signup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register (Seller)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "if(r.success&&r.session){pm.collectionVariables.set('seller_token',r.session.access_token);pm.collectionVariables.set('seller_id',r.user.id);}",
+                  "pm.test('Register success',()=>pm.expect(r.success).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"seller@test.com\",\n  \"password\": \"Test1234!\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"Seller\",\n  \"date_of_birth\": \"1990-03-20\",\n  \"country_code\": \"+971\",\n  \"phone_number\": \"509876543\",\n  \"collection_address\": {\"address\": \"456 Seller Ave\",\"town_city\": \"Abu Dhabi\",\"postcode\": \"54321\"},\n  \"delivery_address\": {\"address\": \"456 Seller Ave\",\"town_city\": \"Abu Dhabi\",\"postcode\": \"54321\"}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/signup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login (Buyer)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "if(r.access_token){pm.collectionVariables.set('token',r.access_token);pm.collectionVariables.set('buyer_token',r.access_token);}",
+                  "pm.test('Login success',()=>pm.expect(r.access_token).to.exist);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"buyer@test.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": {
+              "raw": "https://ciywuwcwixbvmsezppya.supabase.co/auth/v1/token?grant_type=password",
+              "protocol": "https",
+              "host": [
+                "ciywuwcwixbvmsezppya",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "auth",
+                "v1",
+                "token"
+              ],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login (Seller)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "if(r.access_token){pm.collectionVariables.set('seller_token',r.access_token);}",
+                  "pm.test('Login success',()=>pm.expect(r.access_token).to.exist);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"seller@test.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": {
+              "raw": "https://ciywuwcwixbvmsezppya.supabase.co/auth/v1/token?grant_type=password",
+              "protocol": "https",
+              "host": [
+                "ciywuwcwixbvmsezppya",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "auth",
+                "v1",
+                "token"
+              ],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"Test1234!\",\n  \"new_password\": \"NewPass5678!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/change-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpeXd1d2N3aXhidm1zZXpwcHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDAyOTcsImV4cCI6MjA4NzY3NjI5N30.1b-Y6kVbMA-AjpLLmyl-khzMVZx2H3ktSkgla3eK49k"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"anupkretoss@gmail.com\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://ciywuwcwixbvmsezppya.supabase.co/functions/v1/send-otp",
+              "protocol": "https",
+              "host": [
+                "ciywuwcwixbvmsezppya",
+                "supabase",
+                "co"
+              ],
+              "path": [                "send-otp"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Resend OTP",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpeXd1d2N3aXhidm1zZXpwcHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDAyOTcsImV4cCI6MjA4NzY3NjI5N30.1b-Y6kVbMA-AjpLLmyl-khzMVZx2H3ktSkgla3eK49k"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"anupkretoss@gmail.com\",\n    \"otp\": \"6220\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://ciywuwcwixbvmsezppya.supabase.co/functions/v1/verify-otp",
+              "protocol": "https",
+              "host": [
+                "ciywuwcwixbvmsezppya",
+                "supabase",
+                "co"
+              ],
+              "path": [                "verify-otp"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset-Password-ResetToken",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpeXd1d2N3aXhidm1zZXpwcHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDAyOTcsImV4cCI6MjA4NzY3NjI5N30.1b-Y6kVbMA-AjpLLmyl-khzMVZx2H3ktSkgla3eK49k"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"your@email.com\",\n    \"reset_token\": \"your-reset-token-from-verify-otp\",\n    \"new_password\": \"NewPassword123\"\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://ciywuwcwixbvmsezppya.supabase.co/functions/v1/reset-password-otp",
+              "protocol": "https",
+              "host": [
+                "ciywuwcwixbvmsezppya",
+                "supabase",
+                "co"
+              ],
+              "path": [                "reset-password-otp"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Profile",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/update-profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "update-profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"username\": \"johndoe\",\n  \"user_description\": \"I love selling vintage items\",\n  \"gender\": \"male\",\n  \"date_of_birth\": \"1995-06-15\",\n  \"country_code\": \"+971\",\n  \"phone_number\": \"501234567\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/update-profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "update-profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Profile Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "images",
+                  "type": "file",
+                  "value": ""
+                },
+                {
+                  "key": "type",
+                  "value": "profile",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/upload-images",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "upload-images"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Products",
+      "item": [
+        {
+          "name": "Get Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "if(r.success&&r.data&&r.data.length>0){pm.collectionVariables.set('category_id',r.data[0].id);}",
+                  "pm.test('Got categories',()=>pm.expect(r.success).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/products?action=categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "categories"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sub-Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/products?action=sub_categories&category_id={{category_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "sub_categories"
+                },
+                {
+                  "key": "category_id",
+                  "value": "{{category_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add New Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Other\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://ciywuwcwixbvmsezppya.supabase.co/functions/v1/products?action=add-category",
+              "protocol": "https",
+              "host": [
+                "ciywuwcwixbvmsezppya",
+                "supabase",
+                "co"
+              ],
+              "path": [                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "add-category"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add New Sub Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Wear\",\n    \"category_id\": \"ea11075c-a038-4e85-9822-b3dc6b3c5e9f\",\n    \"group_name\": \"Clothing\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://ciywuwcwixbvmsezppya.supabase.co/functions/v1/products?action=add-sub-category",
+              "protocol": "https",
+              "host": [
+                "ciywuwcwixbvmsezppya",
+                "supabase",
+                "co"
+              ],
+              "path": [                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "add-sub-category"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/products?action=list&limit=20&offset=0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/products?action=search&q=shirt",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "search"
+                },
+                {
+                  "key": "q",
+                  "value": "shirt"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/products?action=list&category_id={{category_id}}&condition=new&min_price=10&max_price=500",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                },
+                {
+                  "key": "category_id",
+                  "value": "{{category_id}}"
+                },
+                {
+                  "key": "condition",
+                  "value": "new"
+                },
+                {
+                  "key": "min_price",
+                  "value": "10"
+                },
+                {
+                  "key": "max_price",
+                  "value": "500"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/products?action=detail&id={{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "detail"
+                },
+                {
+                  "key": "id",
+                  "value": "{{product_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STEP 1 — Create Product (no pickup address yet) ★",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "if(r.success&&r.data){pm.collectionVariables.set('product_id',r.data.id);console.log('product_id saved:',r.data.id);}",
+                  "pm.test('Product created',()=>pm.expect(r.success).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Vintage Nike Shirt\",\n  \"description\": \"Great condition vintage Nike shirt from the 90s\",\n  \"price\": 150,\n  \"images\": [],\n  \"category_id\": \"{{category_id}}\",\n  \"condition\": \"good\",\n  \"size\": \"M\",\n  \"color\": \"White\",\n  \"brand\": \"Nike\",\n  \"material\": \"Cotton\",\n  \"location\": \"Dubai\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products?action=create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STEP 2A — Add NEW Pickup Address ★",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "pm.test('Pickup address added',()=>pm.expect(r.success).to.be.true);",
+                  "if(r.success&&r.data&&r.data.address){",
+                  "  pm.collectionVariables.set('address_id',r.data.address.id);",
+                  "  console.log('New pickup address_id saved:',r.data.address.id);",
+                  "  console.log('Full address:',JSON.stringify(r.data.address));",
+                  "  console.log('All pickup addresses:',JSON.stringify(r.data.addresses));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"pickup\",\n  \"address\": \"789 New Pickup Street\",\n  \"town_city\": \"Sharjah\",\n  \"postcode\": \"99999\",\n  \"label\": \"Home\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/addresses?action=add",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "add"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STEP 3 — Set Pickup Address on Product ★",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "pm.test('Pickup address set on product',()=>pm.expect(r.success).to.be.true);",
+                  "if(r.success&&r.data){console.log('pickup_address on product:',JSON.stringify(r.data.pickup_address));}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{product_id}}\",\n  \"pickup_address_id\": \"{{address_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products?action=update",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "update"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product Details (Seller)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{product_id}}\",\n  \"title\": \"Vintage Nike Shirt - Updated\",\n  \"price\": 130\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products?action=update",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "update"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Product Images",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "images",
+                  "type": "file",
+                  "value": ""
+                },
+                {
+                  "key": "type",
+                  "value": "product",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/upload-images",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "upload-images"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Listed Products (Seller)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/products?action=listed",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "listed"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product (Seller)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{product_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products?action=delete",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "delete"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Pickup Address Flow:  \nSTEP 1 — Create product (no pickup_address_id needed yet)  \nSTEP 2 — Go to section 10 Addresses:  \nOption A: Add new pickup address → address_id auto-saved to {{address_id}}  \nOption B: Get existing addresses → pick an id, set {{address_id}} manually  \nSTEP 3 — Call 'Set Pickup Address on Product' to link address to product"
+    },
+    {
+      "name": "4. Wishlist",
+      "item": [
+        {
+          "name": "Get Wishlist",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/wishlist",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "wishlist"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add to Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"isWishlist\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/wishlist",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "wishlist"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove from Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"isWishlist\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/wishlist",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "wishlist"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. ★ SELLER APPROVAL FLOW (24h Delivery)",
+      "item": [
+        {
+          "name": "STEP 1 — Buyer: Create Order (24h Delivery) ★",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "pm.test('Order created',()=>pm.expect(r.success).to.be.true);",
+                  "if(r.success&&r.data){if(r.data.order)pm.collectionVariables.set('order_id',r.data.order.id);if(r.data.delivery_request)pm.collectionVariables.set('delivery_request_id',r.data.delivery_request.id);}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{buyer_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"delivery_type\": \"24hour\",\n  \"shipping_address\": {\n    \"email\": \"buyer@test.com\",\n    \"phone_number\": \"501234567\",\n    \"address\": \"123 Buyer Street\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders?action=create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Delivery Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{buyer_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"type\": \"delivery\",\n    \"address\": \"123 New Street\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\",\n    \"label\": \"Home\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://ciywuwcwixbvmsezppya.supabase.co/functions/v1/addresses?action=add",
+              "protocol": "https",
+              "host": [
+                "ciywuwcwixbvmsezppya",
+                "supabase",
+                "co"
+              ],
+              "path": [                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "add"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Shipping Addresss",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              },
+              {
+                "key": "apikey",
+                "value": "YOUR_ANON_KEY"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"order_id\": \"YOUR_ORDER_ID\", \"delivery_address_id\": \"ADDRESS_ID_FROM_STEP_3\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://ciywuwcwixbvmsezppya.supabase.co/functions/v1/orders?action=update",
+              "protocol": "https",
+              "host": [
+                "ciywuwcwixbvmsezppya",
+                "supabase",
+                "co"
+              ],
+              "path": [                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "update"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STEP 2 — Seller: List Pending Requests ★",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "pm.test('Got requests',()=>pm.expect(r.success).to.be.true);",
+                  "if(r.success&&r.data&&r.data.length>0)pm.collectionVariables.set('delivery_request_id',r.data[0].id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/seller-delivery-requests?action=list&status=pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "seller-delivery-requests"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                },
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STEP 3a — Seller: APPROVE Request ★",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_request_id\": \"{{delivery_request_id}}\",\n  \"seller_notes\": \"Approved! I can deliver within 24 hours.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/seller-delivery-requests?action=approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "seller-delivery-requests"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "approve"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STEP 3b — Seller: REJECT Request ★",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_request_id\": \"{{delivery_request_id}}\",\n  \"seller_notes\": \"Sorry, cannot deliver within 24 hours.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/seller-delivery-requests?action=reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "seller-delivery-requests"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "reject"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STEP 4a — Buyer: Complete Payment (After Approve) ★",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{buyer_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders?action=complete-payment",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "complete-payment"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STEP 4b — Buyer: Complete Payment (Standard AED 20) ★",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{buyer_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders?action=complete-payment",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "complete-payment"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Seller: Get Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/seller-delivery-requests?action=stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "seller-delivery-requests"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "stats"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Seller: List All Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/seller-delivery-requests?action=list&status=all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "seller-delivery-requests"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                },
+                {
+                  "key": "status",
+                  "value": "all"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Payment Link",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJFUzI1NiIsImtpZCI6IjE2NTVkZTQwLWE1ZTEtNGI5YS1iMTAwLTMzYjNiOWIyOTc3YiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2NpeXd1d2N3aXhidm1zZXpwcHlhLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIwNWFlZGFlOC1kNmU1LTQwNmEtOWFiZC1iOWIwMmNjMWE3NWQiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc0ODc1NjMwLCJpYXQiOjE3NzQyNzA4MzAsImVtYWlsIjoiYW51cGtyZXRvc3NAZ21haWwuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJjb3VudHJ5X2NvZGUiOiIrOTcxIiwiZGF0ZV9vZl9iaXJ0aCI6IjE5OTUtMDYtMTUiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZmlyc3RfbmFtZSI6IlRlc3QiLCJsYXN0X25hbWUiOiJCdXllciIsInBob25lX251bWJlciI6IjkwMTIzNDU2NyJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6InBhc3N3b3JkIiwidGltZXN0YW1wIjoxNzc0MjcwODMwfV0sInNlc3Npb25faWQiOiIwOTNjM2U1Zi00Mjk1LTQwYjgtYTNjYy00NWJjNjcyNjY0ZDMiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.LOkFkEY-I48-Wqx_uMnM7xlj0zluJ7WsBEWcIW7xVL4rbTRFEPk2XipaRB731XD8LdcfnC59KTjSKZGLT7EaXg"
+              },
+              {
+                "key": "apikey",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpeXd1d2N3aXhidm1zZXpwcHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDAyOTcsImV4cCI6MjA4NzY3NjI5N30.1b-Y6kVbMA-AjpLLmyl-khzMVZx2H3ktSkgla3eK49k"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"product_id\": \"{{product_id}}\",\n    \"delivery_type\": \"standard\",\n    \"shipping_address\": {\n        \"email\": \"anupkretoss@gmail.com\",\n        \"phone_number\": \"9801234567\",\n        \"address\": \"123 Test Street\",\n        \"town_city\": \"Dubai\",\n        \"postcode\": \"00000\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://ciywuwcwixbvmsezppya.supabase.co/functions/v1/mamo-payment?action=create-link",
+              "protocol": "https",
+              "host": [
+                "ciywuwcwixbvmsezppya",
+                "supabase",
+                "co"
+              ],
+              "path": [                "mamo-payment"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create-link"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Standard Delivery Orders",
+      "item": [
+        {
+          "name": "Create Order (Standard Delivery) ★",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "pm.test('Order created',()=>pm.expect(r.success).to.be.true);",
+                  "if(r.success&&r.data&&r.data.order)pm.collectionVariables.set('order_id',r.data.order.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{buyer_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"delivery_type\": \"standard\",\n  \"shipping_address\": {\n    \"email\": \"buyer@test.com\",\n    \"phone_number\": \"501234567\",\n    \"address\": \"123 Buyer Street\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"12345\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders?action=create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List My Orders (Bought)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{buyer_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/orders?action=list&type=bought",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                },
+                {
+                  "key": "type",
+                  "value": "bought"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List My Orders (Sold)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/orders?action=list&type=sold",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                },
+                {
+                  "key": "type",
+                  "value": "sold"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/orders?action=detail&id={{order_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "detail"
+                },
+                {
+                  "key": "id",
+                  "value": "{{order_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status (shipped)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\",\n  \"status\": \"shipped\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders?action=update-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "update-status"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status (delivered)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{buyer_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\",\n  \"status\": \"delivered\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders?action=update-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "update-status"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7. Conversations & Messaging",
+      "item": [
+        {
+          "name": "Create Conversation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "if(r.success&&r.data)pm.collectionVariables.set('conversation_id',r.data.id);",
+                  "pm.test('Conversation created',()=>pm.expect(r.success).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{buyer_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seller_id\": \"{{seller_id}}\",\n  \"product_id\": \"{{product_id}}\",\n  \"type\": \"chat\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/conversations?action=create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversations"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Inbox",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/conversations?action=inbox",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversations"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "inbox"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r=pm.response.json();",
+                  "if(r.success&&r.data)pm.collectionVariables.set('message_id',r.data.id);",
+                  "pm.test('Message sent',()=>pm.expect(r.success).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{buyer_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversation_id\": \"{{conversation_id}}\",\n  \"content\": \"Hi, is this item still available?\",\n  \"message_type\": \"text\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/conversations?action=send",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversations"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "send"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Offer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{buyer_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversation_id\": \"{{conversation_id}}\",\n  \"content\": \"I'd like to offer AED 120 for this item\",\n  \"message_type\": \"offer\",\n  \"offer_amount\": 120\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/conversations?action=send",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversations"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "send"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/conversations?action=messages&conversation_id={{conversation_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversations"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "messages"
+                },
+                {
+                  "key": "conversation_id",
+                  "value": "{{conversation_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Accept Offer (Seller)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message_id\": \"{{message_id}}\",\n  \"response\": \"accepted\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/conversations?action=respond-offer",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversations"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "respond-offer"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Offer (Seller)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{seller_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message_id\": \"{{message_id}}\",\n  \"response\": \"rejected\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/conversations?action=respond-offer",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversations"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "respond-offer"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "8. Notifications",
+      "item": [
+        {
+          "name": "Get All Notifications (with product details)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r = pm.response.json();",
+                  "pm.test('Got notifications', () => pm.expect(r.success).to.be.true);",
+                  "if (r.success && r.data && r.data.length > 0) {",
+                  "  pm.collectionVariables.set('notification_id', r.data[0].id);",
+                  "  var first = r.data[0];",
+                  "  console.log('total:', r.total, '| unread:', r.unread_count);",
+                  "  console.log('type:', first.type, '| title:', first.title);",
+                  "  if (first.product) {",
+                  "    console.log('product.title:', first.product.title);",
+                  "    console.log('product.description:', first.product.description);",
+                  "    console.log('product.actual_price:', first.product.actual_price);",
+                  "    console.log('product.display_price:', first.product.display_price);",
+                  "    console.log('product.images:', JSON.stringify(first.product.images));",
+                  "  } else {",
+                  "    console.log('No product linked to this notification');",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications-all?action=list&limit=20&offset=0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications-all"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unread Count",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications-all?action=unread-count",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications-all"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "unread-count"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Notification Read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notification_id\": \"{{notification_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/notifications-all?action=read",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications-all"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "read"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark All Notifications Read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"read_all\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/notifications-all?action=read",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications-all"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "read"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notification_id\": \"{{notification_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/notifications-all?action=delete",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications-all"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "delete"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete All Read Notifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delete_all_read\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/notifications-all?action=delete",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications-all"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "delete"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update FCM Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fcm_token\": \"your-fcm-device-token-here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/notifications-all?action=update-fcm-token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications-all"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "update-fcm-token"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Uses /notifications-all endpoint. Each notification in 'data[]' includes a 'product' field with: id, title, description, actual_price, display_price, images, condition, brand, size, is_sold. Product is resolved from data.product_id or via data.order_id as fallback."
+    },
+    {
+      "name": "9. Notification Settings",
+      "item": [
+        {
+          "name": "Get Notification Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notification-settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notification-settings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Notification Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"general_notifications\": true,\n  \"email_notifications\": true,\n  \"message_notifications\": true,\n  \"payment_notifications\": true,\n  \"update_notifications\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/notification-settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notification-settings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Disable Message Notifications",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message_notifications\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/notification-settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notification-settings"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10. Addresses",
+      "item": [
+        {
+          "name": "Get All Addresses (pickup + delivery)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r = pm.response.json();",
+                  "pm.test('Got addresses', () => pm.expect(r.success).to.be.true);",
+                  "if (r.success) {",
+                  "  console.log('pickup_addresses:', JSON.stringify(r.data.pickup_addresses));",
+                  "  console.log('delivery_addresses:', JSON.stringify(r.data.delivery_addresses));",
+                  "  if (r.data.pickup_addresses && r.data.pickup_addresses.length > 0) {",
+                  "    pm.collectionVariables.set('address_id', r.data.pickup_addresses[0].id);",
+                  "    console.log('address_id saved:', r.data.pickup_addresses[0].id);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/addresses?action=get",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "get"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pickup Addresses Only",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r = pm.response.json();",
+                  "pm.test('Got pickup addresses', () => pm.expect(r.success).to.be.true);",
+                  "pm.test('type is pickup', () => pm.expect(r.data.type).to.equal('pickup'));",
+                  "if (r.success) console.log('addresses:', JSON.stringify(r.data.addresses));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/addresses?action=get&type=pickup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "get"
+                },
+                {
+                  "key": "type",
+                  "value": "pickup"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Delivery Addresses Only",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r = pm.response.json();",
+                  "pm.test('Got delivery addresses', () => pm.expect(r.success).to.be.true);",
+                  "pm.test('type is delivery', () => pm.expect(r.data.type).to.equal('delivery'));",
+                  "if (r.success) console.log('addresses:', JSON.stringify(r.data.addresses));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/addresses?action=get&type=delivery",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "get"
+                },
+                {
+                  "key": "type",
+                  "value": "delivery"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Pickup Address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r = pm.response.json();",
+                  "pm.test('Pickup address added', () => pm.expect(r.success).to.be.true);",
+                  "if (r.success && r.data && r.data.address) {",
+                  "  pm.collectionVariables.set('address_id', r.data.address.id);",
+                  "  console.log('New address id:', r.data.address.id);",
+                  "  console.log('All pickup addresses:', JSON.stringify(r.data.addresses));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"pickup\",\n  \"address\": \"789 New Pickup Street\",\n  \"town_city\": \"Sharjah\",\n  \"postcode\": \"99999\",\n  \"label\": \"Home\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/addresses?action=add",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "add"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Delivery Address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r = pm.response.json();",
+                  "pm.test('Delivery address added', () => pm.expect(r.success).to.be.true);",
+                  "if (r.success && r.data && r.data.address) {",
+                  "  pm.collectionVariables.set('address_id', r.data.address.id);",
+                  "  console.log('New address id:', r.data.address.id);",
+                  "  console.log('All delivery addresses:', JSON.stringify(r.data.addresses));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"delivery\",\n  \"address\": \"321 Delivery Road\",\n  \"town_city\": \"Dubai\",\n  \"postcode\": \"11111\",\n  \"label\": \"Office\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/addresses?action=add",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "add"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Pickup Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"pickup\",\n  \"address_id\": \"{{address_id}}\",\n  \"address\": \"789 Updated Pickup Street\",\n  \"town_city\": \"Sharjah\",\n  \"postcode\": \"88888\",\n  \"label\": \"Home Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/addresses?action=update",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "update"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Delivery Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"delivery\",\n  \"address_id\": \"{{address_id}}\",\n  \"address\": \"321 Updated Delivery Road\",\n  \"town_city\": \"Abu Dhabi\",\n  \"postcode\": \"22222\",\n  \"label\": \"Office Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/addresses?action=update",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "update"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Pickup Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"pickup\",\n  \"address_id\": \"{{address_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/addresses?action=delete",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "delete"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Delivery Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"delivery\",\n  \"address_id\": \"{{address_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/addresses?action=delete",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "delete"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Multi-address per type using existing DB columns.\n- collection_address column → pickup addresses\n- delivery_address column → delivery addresses\n\nEach address object: { id, address, town_city, postcode, label, created_at }\nExisting single-object data is auto-wrapped with id='legacy'.\n\nGET ?type=pickup  → { type:'pickup',   addresses:[] }\nGET ?type=delivery → { type:'delivery', addresses:[] }\nGET (no type)      → { pickup_addresses:[], delivery_addresses:[] }"
+    },
+    {
+      "name": "11. Locations",
+      "item": [
+        {
+          "name": "Get UAE Locations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/locations?country=UAE&active=true",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "locations"
+              ],
+              "query": [
+                {
+                  "key": "country",
+                  "value": "UAE"
+                },
+                {
+                  "key": "active",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "12. Admin",
+      "item": [
+        {
+          "name": "Admin: List Delivery Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin-delivery-requests?action=list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin-delivery-requests"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Mamo Payment",
+      "item": [
+        {
+          "name": "01 - Login (get access_token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.access_token) {",
+                  "  pm.collectionVariables.set('access_token', res.access_token);",
+                  "  console.log('✅ access_token saved');",
+                  "} else {",
+                  "  console.error('❌ Login failed:', JSON.stringify(res));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"anupkretoss@gmail.com\",\n  \"password\": \"YOUR_PASSWORD_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "v1",
+                "token"
+              ],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            },
+            "description": "Login to get access_token. Token is auto-saved to collection variable."
+          },
+          "response": []
+        },
+        {
+          "name": "02 - Create Order (Standard Delivery)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data) {",
+                  "  const orderId = res.data.order?.id || res.data.id;",
+                  "  if (orderId) {",
+                  "    pm.collectionVariables.set('order_id', orderId);",
+                  "    console.log('✅ order_id saved:', orderId);",
+                  "  }",
+                  "} else {",
+                  "  console.error('❌ Create order failed:', JSON.stringify(res));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"delivery_type\": \"standard\",\n  \"shipping_address\": {\n    \"email\": \"anupkretoss@gmail.com\",\n    \"phone_number\": \"9801234567\",\n    \"address\": \"123 Test Street\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"00000\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders?action=create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create"
+                }
+              ]
+            },
+            "description": "Creates a standard delivery order. order_id is auto-saved.\n\nExpected: { success: true, data: { order: { id, status: 'pending', ... } } }"
+          },
+          "response": []
+        },
+        {
+          "name": "02b - Create Order (24h Delivery)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data) {",
+                  "  const orderId = res.data.order?.id || res.data.id;",
+                  "  if (orderId) {",
+                  "    pm.collectionVariables.set('order_id', orderId);",
+                  "    console.log('✅ 24h order_id saved:', orderId);",
+                  "  }",
+                  "} else {",
+                  "  console.error('❌ Create 24h order failed:', JSON.stringify(res));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"delivery_type\": \"24hour\",\n  \"shipping_address\": {\n    \"email\": \"anupkretoss@gmail.com\",\n    \"phone_number\": \"9801234567\",\n    \"address\": \"123 Test Street\",\n    \"town_city\": \"Dubai\",\n    \"postcode\": \"00000\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders?action=create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create"
+                }
+              ]
+            },
+            "description": "Creates a 24h delivery order. Seller must approve/reject before payment link can be created.\n\nExpected: { success: true, data: { requires_seller_approval: true, order: { status: 'pending' } } }"
+          },
+          "response": []
+        },
+        {
+          "name": "03b - Create Link (24h — blocked while pending)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mamo-payment?action=create-link",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "mamo-payment"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create-link"
+                }
+              ]
+            },
+            "description": "Test: call create-link on a 24h order while delivery_request is still 'pending'.\n\nExpected 400:\n{\n  success: false,\n  message: 'Waiting for seller to approve or reject the 24-hour delivery request.',\n  data: { delivery_request_status: 'pending', remaining_seconds: 3542 }\n}"
+          },
+          "response": []
+        },
+        {
+          "name": "03 - Create Mamo Payment Link",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data?.payment_url) {",
+                  "  pm.collectionVariables.set('payment_link_id', res.data.mamo_link_id || '');",
+                  "  console.log('✅ Payment URL:', res.data.payment_url);",
+                  "  console.log('✅ mamo_link_id saved:', res.data.mamo_link_id);",
+                  "  console.log('👉 Open this URL in browser to pay:', res.data.payment_url);",
+                  "} else {",
+                  "  console.error('❌ Create link failed:', JSON.stringify(res));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mamo-payment?action=create-link",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "mamo-payment"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create-link"
+                }
+              ]
+            },
+            "description": "Creates a Mamo payment link for the order.\n\nRules:\n- Standard order (status: pending) → returns payment_url immediately\n- 24h order (delivery_request: pending) → returns 400 'Waiting for seller'\n- 24h order (delivery_request: approved) → returns payment_url at AED 40\n- 24h order (delivery_request: rejected/expired) → auto-switches to AED 20, returns payment_url\n\nExpected success:\n{\n  success: true,\n  data: {\n    order_id: '...',\n    payment_url: 'https://sandbox.dev.business.mamopay.com/pay/MB-LINK-...',\n    mamo_link_id: 'MB-LINK-...',\n    item_price: 112.5,\n    delivery_price: 20,\n    total_price: 132.5,\n    requires_payment: true\n  }\n}\n\nOpen payment_url in browser and pay with:\nCard: 4242 4242 4242 4242\nCVV: 123\nExpiry: 01/28"
+          },
+          "response": []
+        },
+        {
+          "name": "04 - Verify Payment (after paying on Mamo page)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success) {",
+                  "  console.log('✅ Payment verified! Order status:', res.data?.status);",
+                  "  console.log('✅ Total paid: AED', res.data?.total_price);",
+                  "} else {",
+                  "  console.error('❌ Verify failed:', res.message);",
+                  "  console.log('Order NOT marked as paid — Mamo did not confirm capture');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\",\n  \"transaction_id\": \"{{transaction_id}}\",\n  \"payment_link_id\": \"{{payment_link_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mamo-payment?action=verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "mamo-payment"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "verify"
+                }
+              ]
+            },
+            "description": "Verifies payment with Mamo's charges API.\n\nAfter paying on the Mamo page, Mamo redirects to:\n/payment-callback?status=captured&transactionId=MPB-CHRG-XXX&paymentLinkId=MB-LINK-XXX\n\nCopy transactionId → set {{transaction_id}} variable\nCopy paymentLinkId → set {{payment_link_id}} variable\n\nThis endpoint re-calls Mamo's API to confirm status === 'captured'.\nOnly then marks order as 'paid'.\n\nExpected success:\n{\n  success: true,\n  data: { status: 'paid', total_price: 132.5, ... },\n  message: 'Payment completed successfully.'\n}\n\nExpected failure (not captured):\n{\n  success: false,\n  message: 'Payment was not successful. Your order has not been updated.'\n}"
+          },
+          "response": []
+        },
+        {
+          "name": "05 - Simulate Mamo Webhook (captured)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"captured\",\n  \"id\": \"{{transaction_id}}\",\n  \"payment_link_id\": \"{{payment_link_id}}\",\n  \"amount\": 132.5,\n  \"currency\": \"AED\",\n  \"custom_data\": {\n    \"order_id\": \"{{order_id}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mamo-webhook",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "mamo-webhook"
+              ]
+            },
+            "description": "Simulates what Mamo sends to your webhook when payment is captured.\n\nNo auth header needed — Mamo calls this server-to-server.\n\nThe webhook will:\n1. Re-verify with Mamo's charges API\n2. Only if confirmed captured → mark order paid, notify seller+buyer, send emails\n\nExpected success:\n{\n  success: true,\n  message: 'Payment confirmed and order updated.'\n}\n\nExpected if not captured:\n{\n  success: false,\n  message: 'Payment not verified with Mamo API.'\n}\n\nRegister this webhook URL in Mamo sandbox dashboard:\nhttps://ciywuwcwixbvmsezppya.supabase.co/functions/v1/mamo-webhook"
+          },
+          "response": []
+        },
+        {
+          "name": "05b - Simulate Mamo Webhook (failed)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"failed\",\n  \"id\": \"MPB-CHRG-FAILED123\",\n  \"payment_link_id\": \"{{payment_link_id}}\",\n  \"amount\": 132.5,\n  \"currency\": \"AED\",\n  \"custom_data\": {\n    \"order_id\": \"{{order_id}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mamo-webhook",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "mamo-webhook"
+              ]
+            },
+            "description": "Simulates a failed payment webhook from Mamo.\n\nExpected: order status stays 'pending_payment', no update.\n{\n  success: true,\n  message: 'Status \"failed\" received, no action taken.'\n}"
+          },
+          "response": []
+        },
+        {
+          "name": "06 - Get Orders (check status)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/orders?action=list&type=bought",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [                "orders"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "list"
+                },
+                {
+                  "key": "type",
+                  "value": "bought"
+                }
+              ]
+            },
+            "description": "Fetch buyer's orders to confirm status changed to 'paid'.\n\nAfter successful payment:\n- order.status should be 'paid'\n- products.is_sold should be true"
+          },
+          "response": []
+        },
+        {
+          "name": "07 - Verify (already paid — idempotent)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\",\n  \"transaction_id\": \"{{transaction_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mamo-payment?action=verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [                "mamo-payment"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "verify"
+                }
+              ]
+            },
+            "description": "Call verify again on an already-paid order.\n\nExpected idempotent response:\n{\n  success: true,\n  message: 'Payment already confirmed.'\n}"
+          },
+          "response": []
+        },
+        {
+          "name": "08 - Create Link (already paid — should block)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{anon_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mamo-payment?action=create-link",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [                "mamo-payment"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "create-link"
+                }
+              ]
+            },
+            "description": "Try to create a payment link for an already-paid order.\n\nExpected 400:\n{\n  success: false,\n  message: 'This order is already paid.'\n}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Firebase Notification Test",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "Test notification",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpeXd1d2N3aXhidm1zZXpwcHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDAyOTcsImV4cCI6MjA4NzY3NjI5N30.1b-Y6kVbMA-AjpLLmyl-khzMVZx2H3ktSkgla3eK49k"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"user_id\": \"69bfe743-4561-4c86-8d5b-c827d8605518\",\n    \"title\": \"Trigger Test\",\n    \"message\": \"Hello there\",\n    \"type\": \"general\"\n  }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://ciywuwcwixbvmsezppya.supabase.co/functions/v1/notify-on-insert",
+          "protocol": "https",
+          "host": [
+            "ciywuwcwixbvmsezppya",
+            "supabase",
+            "co"
+          ],
+          "path": [            "notify-on-insert"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "13. iCarry Shipping",
+      "description": "iCarry UAE integration (https://uae.icarry.com).\nAuth: Info@souk-it.com / Bertie_2311!2000 (hardcoded in edge function)\nBase URL: https://uae.icarry.com/api-frontend/SmartwareShipment\n\nFLOW:\n1. Order created → payment via Mamo\n2. Payment confirmed → iCarry order auto-created (non-blocking)\n3. iCarry assigns tracking number → order status → 'shipped'\n4. Track anytime via tracking number\n\nNEW DB COLUMNS on orders table:\n- icarry_order_id\n- icarry_tracking_number\n- icarry_tracking_url\n\nRun migration: supabase/migrations/20260331000000_add_icarry_fields_to_orders.sql",
+      "item": [
+        {
+          "name": "01 — Test iCarry Auth ★",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const r = pm.response.json();",
+                  "pm.test('iCarry auth success', () => pm.expect(r.success).to.be.true);",
+                  "if (r.success) console.log('✅ iCarry token:', r.token_preview);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{"key": "apikey", "value": "{{anon_key}}"}],
+            "url": {
+              "raw": "{{base_url}}/icarry?action=get-token",
+              "host": ["{{base_url}}"], "path": ["icarry"],
+              "query": [{"key": "action", "value": "get-token"}]
+            },
+            "description": "Tests iCarry authentication with Info@souk-it.com.\n\nExpected:\n{\n  success: true,\n  message: 'iCarry authenticated successfully',\n  token_preview: 'eyJhbGciOiJIUzI1NiIs...'\n}"
+          },
+          "response": []
+        },
+        {
+          "name": "02 — Get Shipping Rates (Marketplace) ★",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "apikey", "value": "{{anon_key}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickupLocation\": \"Souk IT\",\n  \"dropCity\": \"Dubai\",\n  \"toLongitude\": 55.2708,\n  \"toLatitude\": 25.2048,\n  \"weight\": 1,\n  \"length\": 20,\n  \"width\": 20,\n  \"height\": 10\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/icarry?action=get-rates",
+              "host": ["{{base_url}}"], "path": ["icarry"],
+              "query": [{"key": "action", "value": "get-rates"}]
+            },
+            "description": "Gets available carrier rates for a shipment.\nCalls: POST /api-frontend/SmartwareShipment/EstimateRatesForMarketplace\n\nUse the SystemShipmentProvider + MethodId from the response when creating an order."
+          },
+          "response": []
+        },
+        {
+          "name": "03 — Create iCarry Order (after payment) ★",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const r = pm.response.json();",
+                  "pm.test('iCarry order created', () => pm.expect(r.success).to.be.true);",
+                  "if (r.success && r.data) {",
+                  "  pm.collectionVariables.set('icarry_tracking_number', r.data.icarry_tracking_number || '');",
+                  "  pm.collectionVariables.set('icarry_order_id', r.data.icarry_order_id || '');",
+                  "  console.log('✅ iCarry Order ID:', r.data.icarry_order_id);",
+                  "  console.log('✅ Tracking Number:', r.data.icarry_tracking_number);",
+                  "  console.log('✅ Tracking URL:', r.data.icarry_tracking_url);",
+                  "} else {",
+                  "  console.error('❌ Failed:', r.message);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "apikey", "value": "{{anon_key}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/icarry?action=create-order",
+              "host": ["{{base_url}}"], "path": ["icarry"],
+              "query": [{"key": "action", "value": "create-order"}]
+            },
+            "description": "Creates a shipment order on iCarry UAE for a paid Souk IT order.\nCalls: POST /api-frontend/SmartwareShipment/CreateOrderForMarketPlace\n\nPrerequisites:\n- Order status must be 'paid'\n- This is called AUTOMATICALLY after Mamo payment confirmation\n- Can also be called manually if auto-create failed\n\nWhat happens:\n1. Fetches order + buyer/seller profiles from Supabase\n2. Calls iCarry CreateOrderForMarketPlace with buyer as dropOffAddress\n3. Saves icarry_order_id + icarry_tracking_number to order\n4. Updates order status to 'shipped'\n5. Sends push notification to buyer with tracking number\n\nExpected:\n{\n  success: true,\n  data: {\n    order_id: '...',\n    icarry_order_id: 12345,\n    icarry_tracking_number: 'IC-UAE-XXXXXX',\n    icarry_tracking_url: 'https://uae.icarry.com/api-frontend/SmartwareShipment/orderTracking?trackingNumber=IC-UAE-XXXXXX'\n  }\n}"
+          },
+          "response": []
+        },
+        {
+          "name": "04 — Track Shipment by Order ID ★",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "apikey", "value": "{{anon_key}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/icarry?action=track&order_id={{order_id}}",
+              "host": ["{{base_url}}"], "path": ["icarry"],
+              "query": [
+                {"key": "action", "value": "track"},
+                {"key": "order_id", "value": "{{order_id}}"}
+              ]
+            },
+            "description": "Tracks a shipment by Souk IT order_id.\nLooks up icarry_tracking_number from the order, then calls:\nGET /api-frontend/SmartwareShipment/orderTracking?trackingNumber=..."
+          },
+          "response": []
+        },
+        {
+          "name": "05 — Track Shipment by Tracking Number",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "apikey", "value": "{{anon_key}}"}],
+            "url": {
+              "raw": "{{base_url}}/icarry?action=track&tracking_number={{icarry_tracking_number}}",
+              "host": ["{{base_url}}"], "path": ["icarry"],
+              "query": [
+                {"key": "action", "value": "track"},
+                {"key": "tracking_number", "value": "{{icarry_tracking_number}}"}
+              ]
+            },
+            "description": "Tracks directly by iCarry tracking number (IC#).\nCalls: GET /api-frontend/SmartwareShipment/orderTracking?trackingNumber={{icarry_tracking_number}}"
+          },
+          "response": []
+        },
+        {
+          "name": "06 — Cancel iCarry Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "apikey", "value": "{{anon_key}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/icarry?action=cancel&order_id={{order_id}}",
+              "host": ["{{base_url}}"], "path": ["icarry"],
+              "query": [
+                {"key": "action", "value": "cancel"},
+                {"key": "order_id", "value": "{{order_id}}"}
+              ]
+            },
+            "description": "Cancels an iCarry shipment using the IC# tracking number.\nCalls: GET /api-frontend/SmartwareShipment/CancelOrder?trackingNumber=..."
+          },
+          "response": []
+        },
+        {
+          "name": "07 — Get Warehouses (Pickup Locations)",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "apikey", "value": "{{anon_key}}"}],
+            "url": {
+              "raw": "{{base_url}}/icarry?action=get-warehouses",
+              "host": ["{{base_url}}"], "path": ["icarry"],
+              "query": [{"key": "action", "value": "get-warehouses"}]
+            },
+            "description": "Lists all warehouses (pickup locations) in your iCarry account.\nCalls: GET /api-frontend/Warehouse/GetAll\n\nUse the warehouse name as pickupLocation in CreateOrderForMarketPlace."
+          },
+          "response": []
+        },
+        {
+          "name": "08 — Create Warehouse (Pickup Location)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "apikey", "value": "{{anon_key}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Name\": \"Souk IT Dubai\",\n  \"IsActive\": true,\n  \"Address\": {\n    \"FirstName\": \"Souk\",\n    \"LastName\": \"IT\",\n    \"Email\": \"Info@souk-it.com\",\n    \"County\": \"United Arab Emirates\",\n    \"City\": \"Dubai\",\n    \"Address1\": \"Dubai, UAE\",\n    \"Address2\": \"\",\n    \"ZipPostalCode\": \"\",\n    \"PhoneNumber\": \"+971585968861\"\n  }\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/icarry?action=create-warehouse",
+              "host": ["{{base_url}}"], "path": ["icarry"],
+              "query": [{"key": "action", "value": "create-warehouse"}]
+            },
+            "description": "Creates a warehouse/pickup location in iCarry.\nCalls: POST /api-frontend/Warehouse/createWarehouseForMarketPlace\n\nRun this ONCE to set up your Souk IT pickup location.\nThe warehouse Name is used as pickupLocation in CreateOrderForMarketPlace."
+          },
+          "response": []
+        },
+        {
+          "name": "09 — Get Shipping Label PDF",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "apikey", "value": "{{anon_key}}"}],
+            "url": {
+              "raw": "{{base_url}}/icarry?action=get-label&shipment_id={{icarry_order_id}}",
+              "host": ["{{base_url}}"], "path": ["icarry"],
+              "query": [
+                {"key": "action", "value": "get-label"},
+                {"key": "shipment_id", "value": "{{icarry_order_id}}"}
+              ]
+            },
+            "description": "Gets the PDF packaging slip / shipping label for a shipment.\nCalls: GET /api-frontend/SmartwareShipment/PdfPackagingSlip/:shipmentId"
+          },
+          "response": []
+        },
+        {
+          "name": "10 — Direct iCarry: GetToken",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.token) {",
+                  "  pm.collectionVariables.set('icarry_token', r.token);",
+                  "  console.log('✅ iCarry token saved');",
+                  "  console.log('customer_id:', r.customer_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Email\": \"Info@souk-it.com\",\n  \"Password\": \"Bertie_2311!2000\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "https://uae.icarry.com/api-frontend/Authenticate/GetTokenForCustomerApi",
+              "protocol": "https",
+              "host": ["uae", "icarry", "com"],
+              "path": ["api-frontend", "Authenticate", "GetTokenForCustomerApi"]
+            },
+            "description": "Direct call to iCarry auth endpoint (bypasses Supabase edge function).\nReturns: { token, email, customer_id, api_plugin_type, site_url }\n\nToken is auto-saved to {{icarry_token}} for use in direct iCarry calls below."
+          },
+          "response": []
+        },
+        {
+          "name": "11 — Direct iCarry: EstimateRatesForMarketplace",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{icarry_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickupLocation\": \"Souk IT\",\n  \"CODAmount\": 0,\n  \"COdCurrency\": \"AED\",\n  \"DropOffLocation\": \"Dubai\",\n  \"ToLongitude\": 55.2708,\n  \"ToLatitude\": 25.2048,\n  \"ActualWeight\": 1,\n  \"Dimensions\": {\n    \"Length\": 20,\n    \"Width\": 20,\n    \"Height\": 10\n  },\n  \"PackageType\": \"Parcel\",\n  \"DropAddress\": {\n    \"CountryCode\": \"AE\",\n    \"City\": \"Dubai\"\n  },\n  \"ParcelDimensionsList\": [\n    {\n      \"Quantity\": 1,\n      \"Weight\": 1,\n      \"Length\": 20,\n      \"Width\": 20,\n      \"Height\": 10\n    }\n  ]\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "https://uae.icarry.com/api-frontend/SmartwareShipment/EstimateRatesForMarketplace",
+              "protocol": "https",
+              "host": ["uae", "icarry", "com"],
+              "path": ["api-frontend", "SmartwareShipment", "EstimateRatesForMarketplace"]
+            },
+            "description": "Direct call to iCarry to get shipping rates.\nRun '10 — Direct iCarry: GetToken' first to get {{icarry_token}}.\n\nNote the SystemShipmentProvider and MethodId from the response — needed for CreateOrderForMarketPlace."
+          },
+          "response": []
+        },
+        {
+          "name": "12 — Direct iCarry: CreateOrderForMarketPlace ★",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{icarry_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickupLocation\": \"Souk IT\",\n  \"ProcessOrder\": true,\n  \"ExternalId\": \"{{order_id}}\",\n  \"ParcelDimensionsList\": [\n    {\n      \"Quantity\": 1,\n      \"Weight\": 1,\n      \"Length\": 20,\n      \"Width\": 20,\n      \"Height\": 10\n    }\n  ],\n  \"dropOffAddress\": {\n    \"FirstName\": \"Test\",\n    \"LastName\": \"Buyer\",\n    \"Email\": \"buyer@test.com\",\n    \"PhoneNumber\": \"+971501234567\",\n    \"Country\": \"United Arab Emirates\",\n    \"City\": \"Dubai\",\n    \"Address1\": \"123 Test Street, Dubai\",\n    \"Address2\": \"\",\n    \"ZipPostalCode\": \"\"\n  },\n  \"CODAmount\": 0,\n  \"COdCurrency\": \"AED\",\n  \"ActualWeight\": 1,\n  \"PackageType\": \"Parcel\",\n  \"Length\": 20,\n  \"Width\": 20,\n  \"Height\": 10,\n  \"Notes\": \"Souk IT Marketplace Order\",\n  \"ParcelQuantity\": 1,\n  \"ParcelPackageValue\": 150,\n  \"ParcelPackageCurrency\": \"AED\",\n  \"ParcelDescription\": \"Marketplace Item\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "https://uae.icarry.com/api-frontend/SmartwareShipment/CreateOrderForMarketPlace",
+              "protocol": "https",
+              "host": ["uae", "icarry", "com"],
+              "path": ["api-frontend", "SmartwareShipment", "CreateOrderForMarketPlace"]
+            },
+            "description": "Direct call to iCarry to create a marketplace shipment order.\nRun '10 — Direct iCarry: GetToken' first.\n\nPickupLocation must match a warehouse name in your iCarry account.\nRun '08 — Create Warehouse' first if needed.\n\nProcessOrder: true → auto-processes the shipment immediately."
+          },
+          "response": []
+        },
+        {
+          "name": "13 — Direct iCarry: Track Shipment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{icarry_token}}"}
+            ],
+            "url": {
+              "raw": "https://uae.icarry.com/api-frontend/SmartwareShipment/orderTracking?trackingNumber={{icarry_tracking_number}}",
+              "protocol": "https",
+              "host": ["uae", "icarry", "com"],
+              "path": ["api-frontend", "SmartwareShipment", "orderTracking"],
+              "query": [{"key": "trackingNumber", "value": "{{icarry_tracking_number}}"}]
+            },
+            "description": "Direct call to iCarry to track a shipment by IC# tracking number.\nSet {{icarry_tracking_number}} to the IC# returned from CreateOrderForMarketPlace."
+          },
+          "response": []
+        },
+        {
+          "name": "14 — Direct iCarry: Cancel Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{icarry_token}}"}
+            ],
+            "url": {
+              "raw": "https://uae.icarry.com/api-frontend/SmartwareShipment/CancelOrder?trackingNumber={{icarry_tracking_number}}",
+              "protocol": "https",
+              "host": ["uae", "icarry", "com"],
+              "path": ["api-frontend", "SmartwareShipment", "CancelOrder"],
+              "query": [{"key": "trackingNumber", "value": "{{icarry_tracking_number}}"}]
+            },
+            "description": "Direct call to iCarry to cancel a shipment by IC# tracking number."
+          },
+          "response": []
+        },
+        {
+          "name": "15 — Direct iCarry: Get All Warehouses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{icarry_token}}"}
+            ],
+            "url": {
+              "raw": "https://uae.icarry.com/api-frontend/Warehouse/GetAll",
+              "protocol": "https",
+              "host": ["uae", "icarry", "com"],
+              "path": ["api-frontend", "Warehouse", "GetAll"]
+            },
+            "description": "Lists all warehouses in your iCarry account.\nThe warehouse Name is used as pickupLocation in CreateOrderForMarketPlace."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://ciywuwcwixbvmsezppya.supabase.co/functions/v1"
+    },
+    {
+      "key": "anon_key",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpeXd1d2N3aXhidm1zZXpwcHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDAyOTcsImV4cCI6MjA4NzY3NjI5N30.1b-Y6kVbMA-AjpLLmyl-khzMVZx2H3ktSkgla3eK49k"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "seller_token",
+      "value": ""
+    },
+    {
+      "key": "buyer_token",
+      "value": ""
+    },
+    {
+      "key": "product_id",
+      "value": ""
+    },
+    {
+      "key": "order_id",
+      "value": ""
+    },
+    {
+      "key": "delivery_request_id",
+      "value": ""
+    },
+    {
+      "key": "conversation_id",
+      "value": ""
+    },
+    {
+      "key": "message_id",
+      "value": ""
+    },
+    {
+      "key": "notification_id",
+      "value": ""
+    },
+    {
+      "key": "category_id",
+      "value": ""
+    },
+    {
+      "key": "seller_id",
+      "value": ""
+    },
+    {
+      "key": "address_id",
+      "value": ""
+    },
+    {
+      "key": "icarry_awb",
+      "value": ""
+    },
+    {
+      "key": "icarry_shipment_id",
+      "value": ""
+    },
+    {
+      "key": "icarry_token",
+      "value": ""
+    },
+    {
+      "key": "icarry_tracking_number",
+      "value": ""
+    },
+    {
+      "key": "icarry_order_id",
+      "value": ""
+    }
+  ]
+}

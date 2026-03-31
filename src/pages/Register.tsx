@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, type RegisterFormData } from '@/lib/validators';
-import { supabase } from '@/integrations/supabase/client';
+import { signUp } from '@/lib/api';
 import PasswordStrengthBar from '@/components/PasswordStrengthBar';
 import CountryCodeSelect from '@/components/CountryCodeSelect';
 import { Eye, EyeOff, UserPlus, Loader2, Shield } from 'lucide-react';
@@ -17,7 +17,11 @@ export default function Register() {
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { countryCode: '' },
+    defaultValues: { 
+      countryCode: '+971',
+      collectionAddress: { address: '', town_city: '', postcode: '' },
+      deliveryAddress: { address: '', town_city: '', postcode: '' }
+    },
   });
 
   const password = watch('password', '');
@@ -25,30 +29,22 @@ export default function Register() {
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      await signUp({
         email: data.email,
         password: data.password,
-        options: {
-          // No email redirect - user can login immediately
-          data: {
-            first_name: data.firstName,
-            last_name: data.lastName,
-            date_of_birth: data.dateOfBirth,
-            country_code: data.countryCode,
-            phone_number: data.phoneNumber,
-          },
-        },
+        first_name: data.firstName,
+        last_name: data.lastName,
+        date_of_birth: data.dateOfBirth,
+        country_code: data.countryCode,
+        phone_number: data.phoneNumber,
+        collection_address: data.collectionAddress,
+        delivery_address: data.deliveryAddress,
       });
 
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-
-      toast.success('Account created successfully! You can now login.');
+      toast.success('Account created! Check your email for a welcome message.');
       navigate('/login');
-    } catch {
-      toast.error('Something went wrong. Please try again.');
+    } catch (error: any) {
+      toast.error(error.message || 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -157,6 +153,74 @@ export default function Register() {
                 </button>
               </div>
               {errors.confirmPassword && <p className="mt-1 text-xs text-destructive">{errors.confirmPassword.message}</p>}
+            </div>
+
+            {/* Collection Address */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-foreground">Collection Address</h3>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Street Address</label>
+                <input 
+                  {...register('collectionAddress.address')} 
+                  placeholder="123 Main Street, Building A, Apt 101" 
+                  className="auth-input w-full" 
+                />
+                {errors.collectionAddress?.address && <p className="mt-1 text-xs text-destructive">{errors.collectionAddress.address.message}</p>}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Town/City</label>
+                  <input 
+                    {...register('collectionAddress.town_city')} 
+                    placeholder="Dubai" 
+                    className="auth-input w-full" 
+                  />
+                  {errors.collectionAddress?.town_city && <p className="mt-1 text-xs text-destructive">{errors.collectionAddress.town_city.message}</p>}
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Postcode</label>
+                  <input 
+                    {...register('collectionAddress.postcode')} 
+                    placeholder="12345" 
+                    className="auth-input w-full" 
+                  />
+                  {errors.collectionAddress?.postcode && <p className="mt-1 text-xs text-destructive">{errors.collectionAddress.postcode.message}</p>}
+                </div>
+              </div>
+            </div>
+
+            {/* Delivery Address */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-foreground">Delivery Address</h3>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Street Address</label>
+                <input 
+                  {...register('deliveryAddress.address')} 
+                  placeholder="456 Delivery Street, Villa 2" 
+                  className="auth-input w-full" 
+                />
+                {errors.deliveryAddress?.address && <p className="mt-1 text-xs text-destructive">{errors.deliveryAddress.address.message}</p>}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Town/City</label>
+                  <input 
+                    {...register('deliveryAddress.town_city')} 
+                    placeholder="Abu Dhabi" 
+                    className="auth-input w-full" 
+                  />
+                  {errors.deliveryAddress?.town_city && <p className="mt-1 text-xs text-destructive">{errors.deliveryAddress.town_city.message}</p>}
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Postcode</label>
+                  <input 
+                    {...register('deliveryAddress.postcode')} 
+                    placeholder="67890" 
+                    className="auth-input w-full" 
+                  />
+                  {errors.deliveryAddress?.postcode && <p className="mt-1 text-xs text-destructive">{errors.deliveryAddress.postcode.message}</p>}
+                </div>
+              </div>
             </div>
 
             <button type="submit" disabled={isLoading} className="auth-btn flex items-center justify-center gap-2">

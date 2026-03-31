@@ -2,27 +2,12 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
 import { requestFCMToken } from '@/lib/firebase';
-import { updateProfile } from '@/lib/api';
-
-interface Profile {
-  id: string;
-  user_id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  date_of_birth: string | null;
-  phone_number: string | null;
-  country_code: string | null;
-  fcm_token: string | null;
-  gender: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import { getProfile, type ProfileData } from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  profile: Profile | null;
+  profile: ProfileData | null;
   loading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -33,23 +18,29 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    setProfile(data as Profile | null);
+    try {
+      const data = await getProfile();
+      setProfile(data);
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+      setProfile(null);
+    }
   }, []);
 
   const updateFCMToken = useCallback(async () => {
     try {
       const fcmToken = await requestFCMToken();
       if (fcmToken) {
-        await updateProfile({ fcmToken });
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (!currentUser) return;
+        await supabase
+          .from('profiles')
+          .update({ fcm_token: fcmToken })
+          .eq('user_id', currentUser.id);
         console.log('FCM token updated successfully');
       }
     } catch (error) {
@@ -89,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchProfile(session.user.id);
+        // Always try to update FCM token on app load
         updateFCMToken();
       }
       setLoading(false);

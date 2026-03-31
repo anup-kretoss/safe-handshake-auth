@@ -1,23 +1,24 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useProductDetail, useWishlist, useToggleWishlist, useCreateOrder, useShippingAddresses } from '@/hooks/useApi';
+import { useProductDetail, useToggleWishlist, useCreateOrder, useCreateMamoPaymentLink, useProfile, useCreateConversation } from '@/hooks/useApi';
 import { useAuth } from '@/context/AuthContext';
 import { ArrowLeft, Heart, Share2, MapPin, Tag, Ruler, Palette, Package, Layers, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: product, isLoading } = useProductDetail(id!);
-  const { data: wishlistItems = [] } = useWishlist();
   const toggleWishlistMutation = useToggleWishlist();
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
-  const isWishlisted = useMemo(
-    () => wishlistItems.some(item => item.product_id === id),
-    [wishlistItems, id]
-  );
+  // Sync wishlist state from API response (isWishlist field)
+  useEffect(() => {
+    if (product) {
+      setIsWishlisted(!!(product as any).isWishlist);
+    }
+  }, [product]);
 
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
   const [deliveryType, setDeliveryType] = useState<'standard' | '24hour'>('standard');
@@ -29,16 +30,32 @@ export default function ProductDetailPage() {
     postcode: '',
   });
 
-  const { data: pastAddresses } = useShippingAddresses();
+  const { data: profileData } = useProfile();
   const createOrderMutation = useCreateOrder();
+  const createMamoLinkMutation = useCreateMamoPaymentLink();
+  const createConversationMutation = useCreateConversation();
 
+  // Pre-fill address from profile's delivery_address
   useEffect(() => {
-    if (user && pastAddresses && pastAddresses.length > 0) {
-      setAddress(pastAddresses[0].shipping_address);
-    } else if (user) {
-      setAddress(prev => ({ ...prev, email: user.email || '' }));
+    if (profileData) {
+      const da = profileData.delivery_address;
+      if (da) {
+        setAddress({
+          email: (da as any).email || profileData.email || user?.email || '',
+          phone_number: (da as any).phone_number || profileData.phone_number || '',
+          address: da.address || '',
+          town_city: da.town_city || '',
+          postcode: da.postcode || '',
+        });
+      } else {
+        setAddress(prev => ({
+          ...prev,
+          email: profileData.email || user?.email || '',
+          phone_number: profileData.phone_number || '',
+        }));
+      }
     }
-  }, [user, pastAddresses]);
+  }, [profileData, user]);
 
   const toggleWishlist = async () => {
     if (!user) {
@@ -48,6 +65,7 @@ export default function ProductDetailPage() {
     }
     try {
       await toggleWishlistMutation.mutateAsync({ productId: id!, isWishlist: !isWishlisted });
+      setIsWishlisted(prev => !prev);
       toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
     } catch {
       toast.error('Failed to update wishlist');
@@ -67,21 +85,12 @@ export default function ProductDetailPage() {
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke('conversations?action=create', {
-        method: 'POST',
-        body: {
-          seller_id: product.seller_id,
-          product_id: product.id,
-          type: 'chat'
-        }
+      const data = await createConversationMutation.mutateAsync({
+        seller_id: product.seller_id,
+        product_id: product.id,
+        type: 'chat',
       });
-
-      if (error) throw error;
-      if (data.success) {
-        navigate(`/chat/${data.data.id}`);
-      } else {
-        throw new Error(data.message);
-      }
+      navigate(`/chat/${data.id}`);
     } catch (err: any) {
       toast.error(err.message || 'Failed to start conversation');
     }
@@ -94,26 +103,46 @@ export default function ProductDetailPage() {
       return;
     }
 
-    const missing = Object.entries(address).filter(([k, v]) => !String(v).trim());
+    const missing = Object.entries(address).filter(([, v]) => !String(v).trim());
     if (missing.length > 0) {
       toast.error('Please complete your shipping address');
       return;
     }
 
     try {
-      const res = await createOrderMutation.mutateAsync({
+      // Step 1: create the order
+      const orderRes = await createOrderMutation.mutateAsync({
         product_id: product.id,
         delivery_type: deliveryType,
         shipping_address: address,
       });
 
-      toast.success(res.message || 'Order placed!');
+      // 24-hour: seller approval needed, no payment yet
+      if (orderRes.requires_seller_approval) {
+        toast.success(orderRes.message || '24-hour delivery request sent to seller.');
+        setIsBuyModalOpen(false);
+        navigate('/orders');
+        return;
+      }
+
+      // Step 2: create Mamo payment link using the order_id
+      const payRes = await createMamoLinkMutation.mutateAsync({ order_id: orderRes.order?.id || orderRes.id });
+
+      if (payRes.requires_payment && payRes.payment_url) {
+        sessionStorage.setItem('pending_order_id', payRes.order_id);
+        window.location.href = payRes.payment_url;
+        return;
+      }
+
+      toast.success('Order placed!');
       setIsBuyModalOpen(false);
       navigate('/orders');
     } catch (err: any) {
-      toast.error(err.message || 'Failed to place order');
+      toast.error(err.message || 'Failed to initiate payment');
     }
   };
+
+  const isBuying = createOrderMutation.isPending || createMamoLinkMutation.isPending;
 
   if (isLoading) {
     return (
@@ -173,7 +202,7 @@ export default function ProductDetailPage() {
         <div>
           <div className="flex items-start justify-between gap-3">
             <h1 className="text-xl font-bold text-foreground">{product.title}</h1>
-            <p className="text-xl font-bold text-primary shrink-0">${product.display_price || product.price}</p>
+            <p className="text-xl font-bold text-primary shrink-0">AED {product.display_price || product.price}</p>
           </div>
           <div className="flex items-center gap-2 mt-1.5">
             {product.categories?.name && (
@@ -190,8 +219,12 @@ export default function ProductDetailPage() {
           </div>
           {product.seller_name && (
             <div className="mt-4 p-3 rounded-xl border border-border bg-card flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                {(product as any).seller_name[0]}
+              <div className="h-10 w-10 rounded-full bg-primary/10 overflow-hidden flex items-center justify-center text-primary font-bold shrink-0">
+                {(product as any).seller_image_url ? (
+                  <img src={(product as any).seller_image_url} alt={(product as any).seller_name} className="w-full h-full object-cover" />
+                ) : (
+                  (product as any).seller_name[0]
+                )}
               </div>
               <div>
                 <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Seller</p>
@@ -256,17 +289,41 @@ export default function ProductDetailPage() {
                     className={`p-3 rounded-xl border-2 transition text-left ${deliveryType === 'standard' ? 'border-primary bg-primary/5' : 'border-border'}`}
                   >
                     <p className="text-sm font-bold">Standard</p>
-                    <p className="text-[10px] text-muted-foreground">3-5 Days · $20</p>
+                    <p className="text-[10px] text-muted-foreground">3-5 Days · AED 20</p>
                   </button>
                   <button
                     onClick={() => setDeliveryType('24hour')}
                     className={`p-3 rounded-xl border-2 transition text-left ${deliveryType === '24hour' ? 'border-primary bg-primary/5' : 'border-border'}`}
                   >
                     <p className="text-sm font-bold">24-Hour</p>
-                    <p className="text-[10px] text-muted-foreground">Next Day · $40</p>
+                    <p className="text-[10px] text-muted-foreground">Next Day · AED 40</p>
+                    <p className="text-[9px] text-orange-500 font-medium mt-0.5">Needs seller approval</p>
                   </button>
                 </div>
               </div>
+
+              {/* Price summary */}
+              {product && (
+                <div className="rounded-xl bg-secondary p-3 space-y-1.5">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Item price</span>
+                    <span>AED {(product.display_price || product.price).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Delivery ({deliveryType === '24hour' ? '24-Hour' : 'Standard'})</span>
+                    <span>AED {deliveryType === '24hour' ? '40.00' : '20.00'}</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-bold text-foreground border-t border-border pt-1.5">
+                    <span>Total</span>
+                    <span>AED {((product.display_price || product.price) + (deliveryType === '24hour' ? 40 : 20)).toFixed(2)}</span>
+                  </div>
+                  {deliveryType === '24hour' && (
+                    <p className="text-[10px] text-orange-500 font-medium pt-0.5">
+                      Payment will be collected after seller approves the 24-hour delivery request.
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-3">
                 <label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Shipping Address</label>
@@ -315,11 +372,11 @@ export default function ProductDetailPage() {
               </button>
               <button
                 onClick={handleBuy}
-                disabled={createOrderMutation.isPending}
+                disabled={isBuying}
                 className="flex-[2] h-12 rounded-xl bg-primary text-primary-foreground font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
               >
-                {createOrderMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Confirm Purchase
+                {isBuying ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {deliveryType === '24hour' ? 'Request 24H Delivery' : 'Pay Now'}
               </button>
             </div>
           </div>

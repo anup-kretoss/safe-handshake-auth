@@ -52,6 +52,7 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS location_id UUID REFERENCES locati
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS full_name TEXT;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS collection_address JSONB;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS delivery_address JSONB;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS fcm_token TEXT;
 
 -- Remove old pickup_addresses column if it exists
 ALTER TABLE profiles DROP COLUMN IF EXISTS pickup_addresses;

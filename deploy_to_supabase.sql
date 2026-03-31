@@ -77,7 +77,8 @@ ADD COLUMN IF NOT EXISTS user_description TEXT,
 ADD COLUMN IF NOT EXISTS location_id UUID REFERENCES locations(id),
 ADD COLUMN IF NOT EXISTS full_name TEXT,
 ADD COLUMN IF NOT EXISTS collection_address JSONB, -- Required at signup
-ADD COLUMN IF NOT EXISTS delivery_address JSONB; -- Required at signup
+ADD COLUMN IF NOT EXISTS delivery_address JSONB, -- Required at signup
+ADD COLUMN IF NOT EXISTS fcm_token TEXT; -- Added for FCM notifications
 
 -- Remove pickup_addresses as it's replaced by collection_address and delivery_address
 ALTER TABLE profiles DROP COLUMN IF EXISTS pickup_addresses;
@@ -227,3 +228,37 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('profile-images', 'profile-images', true)
 ON CONFLICT (id) DO NOTHING;
+
+-- Create notifications table for in-app notifications
+CREATE TABLE IF NOT EXISTS notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  message TEXT NOT NULL,
+  type TEXT DEFAULT 'general',
+  data JSONB DEFAULT '{}'::jsonb,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  read_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
+
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own notifications" ON notifications;
+CREATE POLICY "Users can view their own notifications"
+  ON notifications FOR SELECT
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their own notifications" ON notifications;
+CREATE POLICY "Users can update their own notifications"
+  ON notifications FOR UPDATE
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Service role can insert notifications" ON notifications;
+CREATE POLICY "Service role can insert notifications"
+  ON notifications FOR INSERT
+  WITH CHECK (true);

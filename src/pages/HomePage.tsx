@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useCategories, useSubCategories, useProducts } from '@/hooks/useApi';
+import { useCategories, useSubCategories, useProducts, useNotifications } from '@/hooks/useApi';
 import { useAuth } from '@/context/AuthContext';
 import ProductCard from '@/components/ProductCard';
 import BottomNav from '@/components/BottomNav';
@@ -10,6 +10,8 @@ const CONDITIONS = ['new', 'good', 'worn'];
 
 export default function HomePage() {
   const { profile } = useAuth();
+  const { data: notifications = [] } = useNotifications(20);
+  const unreadCount = notifications.filter((n: any) => !n.is_read).length;
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | undefined>();
   const [showFilters, setShowFilters] = useState(false);
@@ -66,10 +68,14 @@ export default function HomePage() {
             <Link to="/search" className="h-10 w-10 flex items-center justify-center rounded-full bg-secondary">
               <Search className="h-5 w-5 text-foreground" />
             </Link>
-            <button className="h-10 w-10 flex items-center justify-center rounded-full bg-secondary relative">
+            <Link to="/notifications" className="h-10 w-10 flex items-center justify-center rounded-full bg-secondary relative">
               <Bell className="h-5 w-5 text-foreground" />
-              <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-destructive" />
-            </button>
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-destructive flex items-center justify-center">
+                  {unreadCount > 9 ? null : null}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       </header>

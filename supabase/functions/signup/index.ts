@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendEmail, welcomeEmail } from "../_shared/mailer.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -215,6 +216,13 @@ serve(async (req) => {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    // Send welcome email (non-blocking)
+    sendEmail({
+      to: email.trim().toLowerCase(),
+      subject: "Welcome to Souk IT! 🎉",
+      html: welcomeEmail(resolvedFirstName.trim(), email.trim().toLowerCase()),
+    }).catch((e) => console.error("[signup] welcome email failed:", e));
 
     // Sign in the user to get access token
     const anonClient = createClient(

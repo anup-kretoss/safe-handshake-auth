@@ -33,8 +33,9 @@ async function getAccessToken(): Promise<string> {
   const claimB64 = b64url(enc.encode(JSON.stringify(claim)));
   const unsignedJwt = `${headerB64}.${claimB64}`;
 
-  // Import private key
-  const pemBody = privateKeyPem.replace(/-----BEGIN PRIVATE KEY-----/g, '').replace(/-----END PRIVATE KEY-----/g, '').replace(/\s/g, '');
+  // Import private key — normalize escaped \n literals to real newlines before stripping
+  const normalizedKey = privateKeyPem.replace(/\\n/g, '\n');
+  const pemBody = normalizedKey.replace(/-----BEGIN PRIVATE KEY-----/g, '').replace(/-----END PRIVATE KEY-----/g, '').replace(/\s/g, '');
   const binaryKey = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0));
   const key = await crypto.subtle.importKey('pkcs8', binaryKey, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
   const signature = new Uint8Array(await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, enc.encode(unsignedJwt)));
@@ -50,8 +51,6 @@ async function getAccessToken(): Promise<string> {
   if (!tokenData.access_token) throw new Error('Failed to get access token');
   return tokenData.access_token;
 }
-
-serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -64,24 +63,32 @@ serve(async (req) => {
       });
     }
 
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
-    if (!supabaseKey) {
-      return new Response(JSON.stringify({ success: false, message: 'supabaseKey is required.' }), {
-        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const token = authHeader.replace('Bearer ', '').trim();
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      supabaseKey,
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    // Allow internal calls using the service role key directly
+    const isInternalCall = token === serviceRoleKey;
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return new Response(JSON.stringify({ success: false, message: 'Unauthorized' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    if (!isInternalCall) {
+      const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
+      if (!supabaseKey) {
+        return new Response(JSON.stringify({ success: false, message: 'supabaseKey is required.' }), {
+          status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        supabaseKey,
+        { global: { headers: { Authorization: authHeader } } }
+      );
+
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        return new Response(JSON.stringify({ success: false, message: 'Unauthorized' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     const body = await req.json();

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Script to set Supabase secrets for FCM notifications
+# Usage: ./setup_fcm_secrets.sh
+
+echo "Setting Supabase Edge Function secrets for FCM..."
+
+# Replace these values with the ones from your service account JSON
+SOUK_IT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCgaWC4IXtu6VfK\nPoagLx8Qm94Y5Mfc7JnVtPhfPT5alj/bkGfiv+0FopO0zff8O/urcPXPn2QG72yD\noyouifOd4w/TyBz/yclY2MgRYx59rlLXuDIqNI9AcsBNnkAt2JdH4FaWPZuBC6UC\ndsFOzDakWtNbr9H0AYBphfGeQpDgqxDKdYmLCuDNWTBdgI2jE9EziPWZQauASPpk\nBycyGSrBNxWUmpyLIGXO9YcLxqeng/Hx5WE9z1RWee8PhQ9xoMSm/EM3UDKRabsC\n2calaNWXeWzJbcdWr7P5c+KZYO+SrFeJ5fbfI5LXnf/hVI77+Dpevn5Pid1egYDb\nwcF27ALtAgMBAAECggEAJcBXDk527aXFzueDKGyei3qbPNGOxcv68kP6VfOkWo5U\nrfggsskHX5Wg3GLC015Mfs8BUqEI2eb760j5kuVNa6F15poIVRxoodu2zfy9PsfJ\nYFJNoAgplHnNDxdItGFuTPCbgBU0pRyX82n+WWyPCYQEjOXma930miD3OY8h6HWK\nfRIbCy9htVHLdVFKDopegWSqtdLaoym1O3jos0CyiDujl6F1KsImC9wIDhqK0adh\nRq9pB2nIkifo3Gu/PKj+m0CmcRc3jmq3joItCb+pJQ3cqVH4VpOXm9sS5HzDDm+a\nxW0SUzscCjOFCWxPDYc4S/OfrkMi7rOODxVODW658wKBgQDQXaoCGoW29ohH6HoS\nuMR8JBeOzqLUCHZY1zSSve0yB/qPI0a7jzqSPscxFPRSH4EnAMHduZm17V9Aip7t\FiBLtRP3pIlPG52RitO9eD/3Y7D4idh71o6OfMkIUqVzbi7NSMuj4uPRJbWUEAuL\nX1O3WTIsvQpLTbuCMnoMjU7AYwKBgQDFFUFfkPIZI12/BKtEhJtIv56+5OLFE79W\naoD25OYsC8AzTHAKcTuAH+s29w1oaIeHS6cw2DC9PhDY2vMi216O5mrTzD65VyLp\ngSgtYMSZ1vM1A9x5GDXTFBreZl+9DeGU06ZMtM3IGL14Qjqsfc6mG2rYsui3ShHx\ncEjf5caIbwKBgQDJ9z/mshaR9fy61pgctYOeYM2E2r3xkBJGorKO2hGjwSAYxjS1\ncGtxffBNnuYDBA6H47AGXvSi5ubBBJxvalb7ixVDoPSG/VmJzWrX6Er4XGUZQ2PX\BW1Ap6ukqZc9f7tVuA3LWQ1BmK+cSMEn4sqemZKM0t+7hikOVib/K6j9yQKBgAR6\TCbwsx9xF0Msxvtii+imOeQabTCPF0zOVKnHX5dmmPJRbUY/dlud3gk8qbhSj6m6\RU0tzEWwcE+NAfMrysUyZQD05gPt/+QQRCprxWu9X3833D2AGFD4ZvfgmZJBC3wH\JwMdJIPEVCG0V4LtxNEvVEkiH3lynF/A7lbv8IfPAoGAXQmK8/LMEue4yCk+v5j1\nyXHDVfccTBDnlJzBz/yEREIrOTx/UED//JLjmL/uHFQSwKZfY67sApSWXj58uzvH\n/JqK88tq4RNBI+8sB68Oh4h7A4Cgv18TY1eyBzZK9pkVhXF76qLVXI4AoU00GgZP\nzZvYSOC5kYKTDJlgGzFDdrE=\n-----END PRIVATE KEY-----\n"
+
+supabase secrets set \
+  project_id="souk-it" \
+  client_email="firebase-adminsdk-fbsvc@souk-it.iam.gserviceaccount.com" \
+  private_key="$SOUK_IT_PRIVATE_KEY"
+
+echo "✅ secrets set successfully!"

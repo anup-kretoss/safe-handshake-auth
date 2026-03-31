@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendEmail, passwordChangedEmail } from "../_shared/mailer.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -62,6 +63,20 @@ serve(async (req) => {
     if (updateError) {
       return json({ success: false, message: updateError.message || 'Failed to update password' }, 500);
     }
+
+    // Fetch user's first name for personalised email
+    const { data: profile } = await adminClient
+      .from('profiles')
+      .select('first_name')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    // Send password changed confirmation email (non-blocking)
+    sendEmail({
+      to: user.email!,
+      subject: "Your Souk IT Password Has Been Changed",
+      html: passwordChangedEmail(profile?.first_name || ''),
+    }).catch((e) => console.error("[change-password] email failed:", e));
 
     return json({ success: true, message: 'Password changed successfully' });
   } catch (err) {

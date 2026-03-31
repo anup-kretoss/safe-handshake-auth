@@ -58,7 +58,7 @@ export default function WishlistPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{item.products?.title}</p>
                   <p className="text-xs text-muted-foreground capitalize">{item.products?.condition}</p>
-                  <p className="text-sm font-bold text-primary mt-1">${item.products?.price}</p>
+                  <p className="text-sm font-bold text-primary mt-1">AED {item.products?.price}</p>
                 </div>
                 <button
                   onClick={e => { e.preventDefault(); handleRemove(item.product_id); }}

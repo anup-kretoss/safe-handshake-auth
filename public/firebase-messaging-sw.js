@@ -1,28 +1,48 @@
-// Firebase Cloud Messaging Service Worker
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
-// Initialize Firebase in the service worker
+// SW version — bump this to force browser to install new SW
+const SW_VERSION = '3';
+
 firebase.initializeApp({
-  apiKey: 'AIzaSyDjrmOL-H7FPmho3bDROkw_qIe1IVEsz3Y',
-  authDomain: 'souk-it-app.firebaseapp.com',
-  projectId: 'souk-it-app',
-  storageBucket: 'souk-it-app.firebasestorage.app',
-  messagingSenderId: '803513142685',
-  appId: '1:803513142685:web:bbc8ddf7d856b69f8eb374'
+  apiKey: 'AIzaSyAG62i3wcZBb3833cG3zGLf6evlch5DzQw',
+  authDomain: 'souk-it.firebaseapp.com',
+  projectId: 'souk-it',
+  storageBucket: 'souk-it.firebasestorage.app',
+  messagingSenderId: '979438431901',
+  appId: '1:979438431901:web:9f499c326a373d8f5f6e74',
 });
 
 const messaging = firebase.messaging();
 
-// Handle background messages
+// Background message handler — fires when app tab is NOT focused
 messaging.onBackgroundMessage((payload) => {
-  console.log('Received background message:', payload);
-  
-  const notificationTitle = payload.notification?.title || 'New Notification';
-  const notificationOptions = {
-    body: payload.notification?.body || '',
-    icon: '/favicon.ico',
-  };
+  console.log('[SW v' + SW_VERSION + '] Background message:', payload);
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  const title = payload.notification?.title || payload.data?.title || 'New Notification';
+  const body  = payload.notification?.body  || payload.data?.message || '';
+
+  self.registration.showNotification(title, {
+    body,
+    icon: '/favicon.ico',
+    badge: '/favicon.ico',
+    tag: payload.data?.type || 'general',
+    data: payload.data || {},
+    requireInteraction: false,
+  });
+});
+
+// Click on notification → focus/open the app
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) return clients.openWindow('/');
+    })
+  );
 });

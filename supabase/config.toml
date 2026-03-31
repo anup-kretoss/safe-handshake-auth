@@ -50,3 +50,27 @@ verify_jwt = false
 
 [functions.logout]
 verify_jwt = false
+
+[functions.addresses]
+verify_jwt = false
+
+[functions.seller-delivery-requests]
+verify_jwt = false
+
+[functions.admin-delivery-requests]
+verify_jwt = false
+
+[functions.notification-settings]
+verify_jwt = false
+
+[functions.locations]
+verify_jwt = false
+
+[functions.upload-images]
+verify_jwt = false
+
+[functions.mamo-payment]
+verify_jwt = false
+
+[functions.mamo-webhook]
+verify_jwt = false

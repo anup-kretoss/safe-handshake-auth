@@ -197,9 +197,9 @@ serve(async (req) => {
         }
 
         try {
-          // Generate unique filename
-          const fileExt = imageFile.name.split('.').pop() || 'jpg';
-          const fileName = `${user.id}/profile-${Date.now()}.${fileExt}`;
+          // Fixed filename per user — always overwrites, no stale files
+          const fileExt = imageFile.name.split('.').pop()?.toLowerCase() || 'jpg';
+          const fileName = `${user.id}/profile.${fileExt}`;
 
           // Convert File to ArrayBuffer for Supabase Storage
           const fileBuffer = await imageFile.arrayBuffer();
@@ -220,8 +220,8 @@ serve(async (req) => {
             console.warn('Bucket creation warning:', bucketError);
           }
 
-          // Upload to Supabase Storage
-          const { data: uploadData, error: uploadError } = await adminClient.storage
+          // Upload to Supabase Storage (upsert=true overwrites existing)
+          const { error: uploadError } = await adminClient.storage
             .from('profile-images')
             .upload(fileName, fileBuffer, {
               contentType: imageFile.type,
@@ -234,12 +234,12 @@ serve(async (req) => {
             throw uploadError;
           }
 
-          // Get public URL
+          // Get public URL — append cache-bust so clients reload the new image
           const { data: { publicUrl } } = adminClient.storage
             .from('profile-images')
             .getPublicUrl(fileName);
 
-          imageUrl = publicUrl;
+          imageUrl = `${publicUrl}?t=${Date.now()}`;
           
           // Store image URL in profile_image field
           updateData.profile_image = imageUrl;

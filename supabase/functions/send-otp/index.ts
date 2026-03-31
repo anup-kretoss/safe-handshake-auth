@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendEmail, otpEmail } from "../_shared/mailer.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -125,6 +126,20 @@ serve(async (req) => {
     } catch {
       // Email sending failed but OTP is still stored - continue
     }
+
+    // Fetch user's first name for personalised email
+    const { data: profile } = await adminClient
+      .from('profiles')
+      .select('first_name')
+      .eq('user_id', (users?.users?.find((u: any) => u.email === email))?.id || '')
+      .maybeSingle();
+
+    // Send OTP email via Resend (non-blocking)
+    sendEmail({
+      to: email,
+      subject: "Your Souk IT Password Reset OTP",
+      html: otpEmail(profile?.first_name || '', otp),
+    }).catch((e) => console.error("[send-otp] email failed:", e));
 
     return new Response(JSON.stringify({ 
       success: true, 
